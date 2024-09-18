@@ -1,0 +1,13 @@
+<!-- templates/admin/contactmessage_change_form.html -->
+
+{% extends 'admin/change_form.html' %}
+{% load i18n %}
+
+{% block after_related_objects %}
+    <h2>{% trans "Reply to Message" %}</h2>
+    <form method="post" action=".">
+        {% csrf_token %}
+        {{ reply_form.as_p }}
+        <button type="submit" class="button">{% trans "Send Reply" %}</button>
+    </form>
+{% endblock %}

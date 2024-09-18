@@ -1,0 +1,171 @@
+from pathlib import Path
+import os
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+SITE_URL = 'http://127.0.0.1:8000'
+# Quick-start development settings - unsuitable for production
+SECRET_KEY = 'django-insecure-q0-!6c4228evgasyo%nl828#-p*a+yr(bw!8znp-!+vfgv3@yf'
+DEBUG = True
+ALLOWED_HOSTS = ["*"]
+
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'events',
+]
+
+LOGIN_REDIRECT_URL = '/'  # URL to redirect to after successful login
+LOGOUT_REDIRECT_URL = '/'  # URL to redirect to after logout
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'event_management_system.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'events', 'templates', 'events')],  # Ensure this path is correct
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'event_management_system.wsgi.application'
+
+# Database settings
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'eventhub_database',
+        'USER': 'alvinroot',
+        'PASSWORD': 'Alvin200115',
+        'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
+        'PORT': '5432',
+    }
+}
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'Asia/Kolkata'
+USE_I18N = True
+USE_TZ = True
+
+# # Static files (CSS, JavaScript, Images)
+# # Use S3 for static files in production
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# # S3 bucket for static files
+# AWS_STATIC_CUSTOM_DOMAIN = 'eventhub-static.s3.amazonaws.com'  # Ensure the bucket name is 'eventhub-static' for static files
+# STATIC_URL = f'https://{AWS_STATIC_CUSTOM_DOMAIN}/static/'
+
+# # Media files (Uploads)
+# AWS_S3_CUSTOM_DOMAIN = 'eventhub-media.s3.amazonaws.com'
+# MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# # Remove this because media files are stored on S3, not on the local filesystem
+# # MEDIA_ROOT is unnecessary when using S3 for media files
+# # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# # Default primary key field type
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# # AWS Credentials and S3 settings
+# AWS_ACCESS_KEY_ID = 'AKIAQPHJMQZMA3V7K7UD'
+# AWS_SECRET_ACCESS_KEY = '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'
+
+# # S3 bucket for media files (ensure this bucket is set up for media files)
+# AWS_STORAGE_BUCKET_NAME = 'eventhub-media'
+# AWS_S3_REGION_NAME = 'eu-north-1'
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_DEFAULT_ACL = None  # Set ACL to None (files will be private by default)
+# AWS_S3_VERIFY = True
+
+# # S3 Object Parameters (Cache-Control)
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': 'max-age=86400',
+# }
+
+# # Use S3 for media storage
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# AWS settings
+AWS_ACCESS_KEY_ID = 'AKIAQPHJMQZMHM5IM7J2'
+AWS_SECRET_ACCESS_KEY = 'BStS5Ga1VYf/gygrOzXXOjtPxLyfAB9Eet9bGZi1'
+AWS_STORAGE_BUCKET_NAME = 'eventhub-storage'
+AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+
+# S3 bucket configuration
+AWS_S3_CUSTOM_DOMAIN = f'eventhub-storage.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# Optional: If you have static files locally
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# # Media files
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'alvinksabu200115@gmail.com'
+EMAIL_HOST_PASSWORD = 'ceoj dbha miri hkdw'
+DEFAULT_FROM_EMAIL = 'alvinksabu200115@gmail.com'

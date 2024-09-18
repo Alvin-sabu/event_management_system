@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Detail - {{ event.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .event-detail-container {
+        background: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .event-detail-container h2 {
+        color: #007bff;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .event-detail-container p {
+        color: #333;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .event-detail-container strong {
+        color: #0056b3;
+    }
+
+    .event-detail-container .btn {
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    }
+
+    .event-detail-container .btn-primary {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+    }
+
+    .event-detail-container .btn-primary:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .event-detail-container .btn-secondary {
+        background-color: #6c757d;
+        color: #ffffff;
+        border: none;
+    }
+
+    .event-detail-container .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: scale(1.05);
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 event-detail-container">
+            <h2>{{ event.title }}</h2>
+            <p>{{ event.description }}</p>
+            <p><strong>Date:</strong> {{ event.date|date:"F j, Y" }}</p>
+            <p><strong>Time:</strong> {{ event.time|date:"g:i a" }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Capacity:</strong> {{ event.capacity }}</p>
+            
+            {% if event.is_full %}
+                <p class="text-danger"><strong>Registration:</strong> Sorry!!! This event is fully booked.</p>
+            {% elif event.has_started %}
+                <p class="text-danger"><strong>Registration:</strong> Sorry!!! Registration for this event is closed.</p>
+                <!-- Display feedback link if event has ended -->
+                <p><a href="{% url 'feedback' event.id %}" class="btn btn-secondary">Give Feedback</a></p>
+            {% else %}
+                <form method="POST" action="{% url 'register_for_event' event.id %}">
+                    {% csrf_token %}
+                    {{ registration_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Register for Event</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

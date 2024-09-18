@@ -1,0 +1,58 @@
+<!-- already_registered.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-info text-center">
+                <h2 class="alert-heading">Already Registered</h2>
+                <p class="lead">You have already registered for this event.</p>
+                <a href="{% url 'event_list' %}" class="btn btn-primary">Back to Events</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        margin: 50px auto;
+        padding: 15px;
+    }
+
+    .alert {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #e9f5ff;
+        border: 1px solid #cce5ff;
+    }
+
+    .alert-heading {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .lead {
+        font-size: 1.25rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004080;
+    }
+</style>
+{% endblock %}

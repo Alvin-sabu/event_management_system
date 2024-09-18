@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply to Message</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            border-radius: 8px 8px 0 0;
+        }
+        .form-control {
+            border-radius: 4px;
+        }
+        .btn {
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-reply me-2"></i>Reply to Message</h2>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">
+                <i class="fas fa-home me-2"></i>Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0"><i class="fas fa-envelope-open-text me-2"></i>Original Message</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-user me-2"></i>From:</strong> {{ message.name }}</p>
+                        <p><strong><i class="fas fa-envelope me-2"></i>Email:</strong> {{ message.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-calendar-alt me-2"></i>Date:</strong> {{ message.created_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                </div>
+                <hr>
+                <p><strong><i class="fas fa-comment me-2"></i>Message:</strong></p>
+                <p class="bg-light p-3 rounded">{{ message.message }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-paper-plane me-2"></i>Your Reply</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label for="{{ form.reply_message.id_for_label }}" class="form-label">Compose your reply:</label>
+                        {{ form.reply_message }}
+                    </div>
+                    <div id="char-count" class="text-muted mb-3"></div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-2"></i>Send Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var replyTextarea = document.getElementById('{{ form.reply_message.id_for_label }}');
+            var charCount = document.getElementById('char-count');
+            var maxLength = 1000;
+
+            // Add the form-control class to the textarea
+            replyTextarea.classList.add('form-control');
+
+            function updateCharCount() {
+                var remaining = maxLength - replyTextarea.value.length;
+                charCount.textContent = remaining + ' characters remaining';
+                if (remaining < 0) {
+                    charCount.classList.add('text-danger');
+                    charCount.textContent = 'Character limit exceeded';
+                } else {
+                    charCount.classList.remove('text-danger');
+                }
+            }
+
+            replyTextarea.addEventListener('input', updateCharCount);
+            updateCharCount(); // Initial count
+        });
+    </script>
+</body>
+</html>

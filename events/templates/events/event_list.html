@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    .welcome-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #343a40;
+    }
+    .welcome-section p {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    .quick-links {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+    .quick-links a {
+        flex: 1;
+        margin: 0 10px;
+        padding: 15px;
+        font-size: 1rem;
+        text-align: center;
+        border-radius: 5px;
+        transition: all 0.3s;
+    }
+    .quick-links a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-section {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #343a40;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 10px;
+    }
+    .event-card {
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    .event-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .event-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    .event-date {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    .event-ended {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .event-ended p {
+        color: #dc3545;
+    }
+    .image-carousel {
+        height: 300px;
+        overflow: hidden;
+        position: relative;
+    }
+    .image-carousel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+    .image-carousel img.active {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p>Stay updated with the latest events and manage your registrations.</p>
+    </div>
+
+    <div class="quick-links">
+        <a href="{% url 'profile' %}" class="btn btn-outline-primary">Your Profile</a>
+        <a href="{% url 'registration_history' %}" class="btn btn-outline-success">My Registrations</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="dashboard-section">
+                <h2>Upcoming Events</h2>
+                {% for event in upcoming_events %}
+                    <div class="event-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="event-title">{{ event.title }}</h3>
+                                <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
+                                <p class="event-date">Registration Starts: {{ event.registration_start|date:"F j, Y, g:i a" }}</p>
+                            </div>
+                            {% if event.registration_start <= now %}
+                                <a href="{% url 'register_for_event' event.id %}" class="btn btn-primary">Register</a>
+                            {% else %}
+                                <p class="text-danger">Registration not started yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No upcoming events.</p>
+                {% endfor %}
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Current Events</h2>
+                {% for event in current_events %}
+                    <div class="event-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="event-title">{{ event.title }}</h3>
+                                <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
+                            </div>
+                            <a href="{% url 'event_detail' event.id %}" class="btn btn-info">View Details</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No current events.</p>
+                {% endfor %}
+
+                <!-- Display Ended Events in Red -->
+                {% for event in ended_events %}
+                    <div class="event-card event-ended">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="event-title">{{ event.title }}</h3>
+                                <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
+                                <p class="event-ended">This event has ended.</p>
+                            </div>
+                            <a href="{% url 'feedback' event.id %}" class="btn btn-warning">Give Feedback</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="dashboard-section">
+                <h2>Highlights</h2>
+                <div class="image-carousel">
+                    {% for poster in posters %}
+                        <img src="{{ poster.image.url }}" alt="{{ poster.title }}" {% if forloop.first %}class="active"{% endif %}>
+                    {% empty %}
+                        <p class="text-muted">No posters available.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple carousel script
+    let activeIndex = 0;
+    const images = document.querySelectorAll('.image-carousel img');
+    
+    function rotateImage() {
+        images[activeIndex].classList.remove('active');
+        activeIndex = (activeIndex + 1) % images.length;
+        images[activeIndex].classList.add('active');
+    }
+
+    setInterval(rotateImage, 5000); // Change image every 5 seconds
+</script>
+{% endblock %}

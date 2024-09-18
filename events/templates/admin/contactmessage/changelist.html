@@ -1,0 +1,20 @@
+<!-- admin/contactmessage/changelist.html -->
+
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reply_to_message">
+            <input type="submit" value="Reply to selected messages">
+            <br>
+            <label>Reply Email:</label>
+            <input type="email" name="reply_email">
+            <br>
+            <label>Reply Message:</label>
+            <textarea name="reply_message"></textarea>
+        </form>
+    </li>
+{% endblock %}

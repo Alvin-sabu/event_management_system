@@ -1,0 +1,11 @@
+<!-- templates/custom_admin/fests.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Fests</h1>
+<ul>
+    {% for fest in fests %}
+    <li>{{ fest.name }} <a href="{% url 'update_fest' fest.id %}">Update</a> <a href="{% url 'delete_fest' fest.id %}">Delete</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'admin_dashboard' %}">Back to Dashboard</a>
+{% endblock %}

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - College Event Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            padding: 0.75rem 1rem;
+            border-left: 3px solid transparent;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,.1);
+            border-left: 3px solid #0d6efd;
+        }
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255,255,255,.1);
+            border-left: 3px solid #0d6efd;
+        }
+        .main-content {
+            margin-left: 16.66667%;
+            padding: 2rem;
+        }
+        .card-counter {
+            box-shadow: 0 4px 8px rgba(0,0,0,.1);
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            transition: .3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-counter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,.1);
+        }
+        .card-counter i {
+            font-size: 4rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 1rem;
+            bottom: -0.5rem;
+        }
+        .card-counter .count-numbers {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .card-counter .count-name {
+            font-size: 1rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .badge-notify {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/events/' %}active{% endif %}" href="{% url 'list_events' %}">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Events
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/departments/' %}active{% endif %}" href="{% url 'list_departments' %}">
+                                <i class="fas fa-building me-2"></i>
+                                Departments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/fests/' %}active{% endif %}" href="{% url 'list_fests' %}">
+                                <i class="fas fa-calendar-week me-2"></i>
+                                Fests
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/create_fest/' %}active{% endif %}" href="{% url 'create_fest' %}">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Create Fest
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/export_feedback/' %}active{% endif %}" href="{% url 'view_feedbacks' %}">
+                                <i class="fas fa-comment-dots me-2"></i>
+                                Feedbacks
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/messages/' %}active{% endif %}" href="{% url 'admin_messages' %}">
+                                <i class="fas fa-envelope me-2"></i>
+                                Messages
+                                {% if unread_messages_count > 0 %}
+                                    <span class="badge bg-danger badge-notify">{{ unread_messages_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/media/' %}active{% endif %}" href="{% url 'media_management' %}">
+                                <i class="fas fa-photo-video me-2"></i>
+                                Media
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'custom_admin_logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Welcome, Admin</h1>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-4">
+                        <div class="card-counter bg-primary text-white">
+                            <i class="fa fa-calendar-check"></i>
+                            <span class="count-numbers">{{ total_events }}</span>
+                            <span class="count-name">Total Events</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-4">
+                        <div class="card-counter bg-success text-white">
+                            <i class="fa fa-building"></i>
+                            <span class="count-numbers">{{ total_departments }}</span>
+                            <span class="count-name">Departments</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-4">
+                        <div class="card-counter bg-info text-white">
+                            <i class="fa fa-users"></i>
+                            <span class="count-numbers">{{ total_users }}</span>
+                            <span class="count-name">Users</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-4">
+                        <div class="card-counter bg-warning text-white">
+                            <i class="fa fa-trophy"></i>
+                            <span class="count-numbers">{{ total_prizes }}</span>
+                            <span class="count-name">Total Prizes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <i class="fas fa-history me-2"></i>Recent Activities
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for activity in recent_activities %}
+                                    <li class="list-group-item">
+                                        <i class="fas fa-dot-circle me-2 text-primary"></i>{{ activity }}
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item">No recent activities.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-bolt me-2"></i>Quick Actions
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'create_event' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Create Event</a>
+                                    <a href="{% url 'export_feedback' %}" class="btn btn-info"><i class="fas fa-file-export me-2"></i>Export Feedback</a>
+                                    <a href="{% url 'user_engagement_analysis' %}" class="btn btn-success"><i class="fas fa-chart-line me-2"></i>User Engagement Analysis</a>
+                                    <a href="{% url 'event_performance_analysis' %}" class="btn btn-secondary"><i class="fas fa-chart-bar me-2"></i>Event Performance Analysis</a>
+                                    <a href="{% url 'manage_event_and_winners' %}" class="btn btn-warning"><i class="fas fa-medal me-2"></i>Manage Winners</a>
+                                    <a href="{% url 'view_registrations' %}" class="btn btn-primary"><i class="fas fa-eye me-2"></i>View Registrations</a>
+                                    <a href="{% url 'download_department_wise_registrations' %}" class="btn btn-danger"><i class="fas fa-download me-2"></i>Download Department-wise Registrations</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <i class="fas fa-envelope me-2"></i>Recent Contact Messages
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for message in contact_messages %}
+                                    <li class="list-group-item {% if not message.read %}bg-light{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ message.name }}</strong> ({{ message.email }})
+                                                <br>
+                                                <small class="text-muted">{{ message.created_at|date:"F d, Y H:i" }}</small>
+                                            </div>
+                                            <div>
+                                                {% if not message.replied %}
+                                                    <a href="{% url 'reply_to_message' message.id %}" class="btn btn-sm btn-primary"><i class="fas fa-reply me-1"></i>Reply</a>
+                                                {% else %}
+                                                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Replied</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="mb-0 mt-2">{{ message.message|truncatewords:20 }}</p>
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item">No recent contact messages.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <!-- Card Header for News Section -->
+                            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-newspaper me-2"></i>Latest News
+                                </span>
+                                <div>
+                                    <!-- Button to trigger a modal for adding news (client-side) -->
+                                    <a href="{% url 'add_news' %}" class="btn btn-sm btn-light">
+                                        <i class="fas fa-plus me-1"></i>Add News
+                                    </a>
+                                </div>
+                            </div>
+                
+                            <!-- News List Group -->
+                            <ul class="list-group list-group-flush">
+                                {% for news in news_items %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5>{{ news.title }}</h5>
+                                            <p>{{ news.summary }}</p>
+                                            <small class="text-muted">{{ news.published_date|date:"F d, Y" }}</small>
+                                        </div>
+                                        <div>
+                                            <!-- Edit News Button -->
+                                            <a href="{% url 'edit_news' news.id %}" class="btn btn-warning btn-sm edit-news me-1">
+                                                <i class="fas fa-edit"></i>Edit
+                                            </a>
+                                            <!-- Delete News Button -->
+                                            <a href="{% url 'delete_news' news.id %}" class="btn btn-danger btn-sm delete-news">
+                                                <i class="fas fa-trash"></i>Delete
+                                            </a>
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item">No news available.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                
+
+              
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.2.1/chart.umd.min.js"></script>
+<script>
+    // Parse data passed from Django to JavaScript
+    const monthLabels = JSON.parse('{{ month_labels|escapejs }}');
+    const registrationCounts = JSON.parse('{{ registration_counts|escapejs }}');
+
+    // Ensure there is data to display
+    if (registrationCounts.every(count => count === 0)) {
+        document.getElementById('eventStatsChart').parentElement.innerHTML = '<p>No registrations data available for the selected period.</p>';
+    } else {
+        // Chart.js configuration
+        const ctx = document.getElementById('eventStatsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthLabels, // Labels for X-axis
+                datasets: [{
+                    label: 'Number of Registrations',
+                    data: registrationCounts, // Data for Y-axis
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Registrations'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Monthly Event Registrations'
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+                
+</body>
+</html>

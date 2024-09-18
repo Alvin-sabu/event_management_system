@@ -1,0 +1,10 @@
+<!-- templates/custom_admin/approve_department.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Approve Department: {{ department.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to approve this department?</p>
+    <button type="submit">Approve Department</button>
+</form>
+{% endblock %}

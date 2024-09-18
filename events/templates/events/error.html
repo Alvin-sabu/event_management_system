@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-danger" role="alert">
+        <h1 class="alert-heading">Attention Required</h1>
+        <p class="mb-4">{{ message }}</p>
+        <hr>
+        <a href="{% url 'event_list' %}" class="btn btn-outline-primary btn-lg mt-3">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

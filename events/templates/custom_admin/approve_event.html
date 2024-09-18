@@ -1,0 +1,10 @@
+<!-- templates/custom_admin/approve_event.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Approve Event: {{ event.title }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to approve the results for this event?</p>
+    <button type="submit">Approve Results</button>
+</form>
+{% endblock %}

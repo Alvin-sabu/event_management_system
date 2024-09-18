@@ -1,0 +1,41 @@
+<h3>Overall Ratings</h3>
+<ul>
+    {% for rating, count in ratings.overall_rating.items %}
+        <li>{{ rating }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Content Relevance</h3>
+<ul>
+    {% for rating, count in ratings.content_relevance.items %}
+        <li>{{ rating }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Speaker Evaluation</h3>
+<ul>
+    {% for rating, count in ratings.speaker_evaluation.items %}
+        <li>{{ rating }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Organization Rating</h3>
+<ul>
+    {% for rating, count in ratings.organization_rating.items %}
+        <li>{{ rating }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Detailed Feedback</h3>
+<ul>
+    {% for feedback in feedback_list %}
+        <li>
+            <strong>{{ feedback.user.username }}:</strong>
+            Overall Rating: {{ feedback.overall_rating }},
+            Content Relevance: {{ feedback.content_relevance }},
+            Speaker Evaluation: {{ feedback.speaker_evaluation }},
+            Organization Rating: {{ feedback.organization_rating }},
+            Suggestions: {{ feedback.suggestions }}
+        </li>
+    {% endfor %}
+</ul>

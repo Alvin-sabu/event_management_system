@@ -1,0 +1,10 @@
+<!-- templates/custom_admin/update_department.html -->
+{% extends "base.html" %}
+{% block content %}
+<h1>Update Department: {{ department.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update Department</button>
+</form>
+{% endblock %}

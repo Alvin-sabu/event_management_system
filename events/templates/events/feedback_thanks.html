@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="alert alert-success">
+        <h1 class="display-4">Thank You!</h1>
+        <p class="lead">Your feedback has been received successfully.</p>
+        <p>We appreciate your input and will use it to enhance our future events. If you have any further questions or need assistance, please feel free to contact us.</p>
+        <a href="{% url 'event_list' %}" class="btn btn-primary mt-3">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

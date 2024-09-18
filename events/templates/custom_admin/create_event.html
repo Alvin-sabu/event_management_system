@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+            border: 1px solid #ced4da;
+        }
+        .btn {
+            border-radius: 0.25rem;
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h2 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Create New Event</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="createEventForm">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label">
+                                        {% if field.name == 'fest' %}
+                                            <i class="fas fa-flag me-2"></i>
+                                        {% elif field.name == 'title' %}
+                                            <i class="fas fa-heading me-2"></i>
+                                        {% elif field.name == 'description' %}
+                                            <i class="fas fa-align-left me-2"></i>
+                                        {% elif field.name == 'date' or field.name == 'end_date' %}
+                                            <i class="fas fa-calendar-day me-2"></i>
+                                        {% elif field.name == 'time' or field.name == 'end_time' %}
+                                            <i class="fas fa-clock me-2"></i>
+                                        {% elif field.name == 'venue' %}
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                        {% elif field.name == 'capacity' %}
+                                            <i class="fas fa-users me-2"></i>
+                                        {% endif %}
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field.errors }}
+                                    {% if field.name == 'date' or field.name == 'time' or field.name == 'end_date' or field.name == 'end_time' %}
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                {% if 'date' in field.name %}
+                                                    <i class="fas fa-calendar"></i>
+                                                {% else %}
+                                                    <i class="fas fa-clock"></i>
+                                                {% endif %}
+                                            </span>
+                                            <input type="{{ field.field.widget.input_type }}" 
+                                                   name="{{ field.name }}" 
+                                                   id="{{ field.id_for_label }}"
+                                                   class="form-control"
+                                                   {% if field.field.required %}required{% endif %}
+                                                   {% if field.value %}value="{{ field.value|date:'Y-m-d' }}"{% endif %}>
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus-circle me-2"></i>Create Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const festSelect = document.getElementById('id_fest');
+            const dateInput = document.getElementById('id_date');
+            const timeInput = document.getElementById('id_time');
+            const form = document.getElementById('createEventForm');
+
+            function updateDateLimits(festId) {
+                if (festId) {
+                    fetch(`/get_fest_dates/${festId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: data.error,
+                                });
+                            } else {
+                                dateInput.min = data.start_date;
+                                dateInput.max = data.end_date;
+                                if (!dateInput.value || (dateInput.value < data.start_date || dateInput.value > data.end_date)) {
+                                    dateInput.value = data.start_date;
+                                }
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Date Range Updated',
+                                    text: `Event date must be between ${data.start_date} and ${data.end_date}`,
+                                });
+                            }
+                        })
+                        .catch(error => console.error('Error fetching fest dates:', error));
+                } else {
+                    dateInput.value = '';
+                    dateInput.min = '';
+                    dateInput.max = '';
+                }
+            }
+
+            // Initial call if a fest is pre-selected
+            if (festSelect.value) {
+                updateDateLimits(festSelect.value);
+            }
+
+            // Update date limits when fest selection changes
+            festSelect.addEventListener('change', function() {
+                updateDateLimits(this.value);
+            });
+
+            // Make the first date and time selectable as the second date and time
+            dateInput.addEventListener('change', function() {
+                const secondDateInput = document.querySelector('input[name="end_date"]');
+                if (secondDateInput) {
+                    secondDateInput.min = this.value;
+                    if (secondDateInput.value < this.value) {
+                        secondDateInput.value = this.value;
+                    }
+                }
+            });
+
+            timeInput.addEventListener('change', function() {
+                const secondTimeInput = document.querySelector('input[name="end_time"]');
+                if (secondTimeInput) {
+                    secondTimeInput.min = this.value;
+                    if (secondTimeInput.value < this.value) {
+                        secondTimeInput.value = this.value;
+                    }
+                }
+            });
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Creating Event',
+                    text: 'Please wait...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                this.submit();
+            });
+        });
+    </script>
+</body>
+</html>

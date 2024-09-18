@@ -1,0 +1,20 @@
+<!-- event_results.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Event Results</h1>
+    {% for event in events %}
+        <div class="event-result">
+            <h2>{{ event.title }}</h2>
+            <p>{{ event.description }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Date:</strong> {{ event.date }} {{ event.time }}</p>
+            <h3>Winners</h3>
+            <p><strong>First Prize:</strong> {{ event.first_prize_winner.username }}</p>
+            <p><strong>Second Prize:</strong> {{ event.second_prize_winner.username }}</p>
+            <p><strong>Third Prize:</strong> {{ event.third_prize_winner.username }}</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

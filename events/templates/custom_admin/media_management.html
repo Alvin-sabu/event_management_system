@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-custom {
+            background-color: #343a40;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: white;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #ffc107;
+        }
+        .container {
+            max-width: 1200px;
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+        }
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            font-size: 1.1rem;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-custom-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-custom-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header.bg-secondary {
+            background-color: #6c757d;
+        }
+
+        .card-header.bg-dark {
+            background-color: #343a40;
+        }
+
+        .card-header.bg-info {
+            background-color: #17a2b8;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767.98px) {
+            .card-header {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-cogs me-2"></i>Admin Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2 class="text-center mb-5" style="color: #343a40;"><i class="fas fa-tasks me-2"></i>Media Management</h2>
+        <div class="row">
+            <!-- Manage Team Members -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card hover-zoom">
+                    <div class="card-header bg-dark">
+                        Manage Team Members
+                    </div>
+                    <div class="card-body text-center">
+                        <a href="{% url 'list_team_members' %}" class="btn custom-btn mb-2 w-100">
+                            <i class="fas fa-users me-2"></i>View Team Members
+                        </a>
+                        <a href="{% url 'add_team_member' %}" class="btn custom-btn custom-btn-success w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add New Member
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Front Page Videos -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card hover-zoom">
+                    <div class="card-header bg-info">
+                        Manage Front Page Videos
+                    </div>
+                    <div class="card-body text-center">
+                        <a href="{% url 'list_front_page_videos' %}" class="btn custom-btn mb-2 w-100">
+                            <i class="fas fa-video me-2"></i>View Videos
+                        </a>
+                        <a href="{% url 'add_front_page_video' %}" class="btn custom-btn custom-btn-success w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Video
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage College Posters -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card hover-zoom">
+                    <div class="card-header bg-secondary">
+                        Manage College Posters
+                    </div>
+                    <div class="card-body text-center">
+                        <a href="{% url 'manage_college_posters' %}" class="btn custom-btn mb-2 w-100">
+                            <i class="fas fa-poster me-2"></i>View Posters
+                        </a>
+                        <a href="{% url 'upload_college_poster' %}" class="btn custom-btn custom-btn-success w-100">
+                            <i class="fas fa-upload me-2"></i>Upload Poster
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Photos -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card hover-zoom">
+                    <div class="card-header bg-dark">
+                        Manage Photos
+                    </div>
+                    <div class="card-body text-center">
+                        <a href="{% url 'list_photos' %}" class="btn custom-btn mb-2 w-100">
+                            <i class="fas fa-photo-video me-2"></i>View Photos
+                        </a>
+                        <a href="{% url 'add_photo' %}" class="btn custom-btn custom-btn-success w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Add Photo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQZ9xTnE1PHF9C4gD9oBOWb4EMn0dK0Qt" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        // Optional: Remove alert on button click for production
+        /*
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.custom-btn-success').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    // Uncomment the line below for production
+                    // window.location.href = this.href;
+                    e.preventDefault();
+                    alert('Redirecting to add page...');
+                });
+            });
+        });
+        */
+    </script>
+</body>
+</html>

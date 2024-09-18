@@ -1,0 +1,31 @@
+<!-- events/templates/events/token_pdf_template.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .details {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registration Token</h1>
+    <div class="details">
+        <p><strong>Name:</strong> {{ registration.name }}</p>
+        <p><strong>Email:</strong> {{ registration.email }}</p>
+        <p><strong>Event:</strong> {{ registration.event.title }}</p>
+        <p><strong>Token:</strong> {{ registration.token }}</p>
+    </div>
+</body>
+</html>

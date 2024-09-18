@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrations for {{ event.title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Registrations for {{ event.title }}</h1>
+        
+        <!-- Back to Event List Button -->
+        <a href="{% url 'list_events' %}" class="btn btn-secondary mb-3">Back to Events List</a>
+
+        <!-- Registrations Table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Participant Name</th>
+                    <th>Email</th>
+                    <th>Registered Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for registration in registrations %}
+                <tr>
+                    <td>{{ registration.id }}</td>
+                    <td>{{ registration.name }}</td>
+                    <td>{{ registration.email }}</td>
+                    <td>{{ registration.registration_date|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                <td>{{ department.name }}</td>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No registrations found for this event.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

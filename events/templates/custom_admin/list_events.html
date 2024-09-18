@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,.15);
+        }
+        .btn-custom {
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+        }
+        .no-events {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="fas fa-calendar-alt me-2"></i>Event Management</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'admin_dashboard' %}"><i class="fas fa-home me-1"></i>Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/create_event/' %}active{% endif %}" href="{% url 'create_event' %}"><i class="fas fa-plus-circle me-1"></i>Create Event</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <h1 class="mt-4 mb-4">Event Dashboard</h1>
+
+        <!-- Filter and Search Bar -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Filter Events</h5>
+                        <select id="combinedFilter" class="form-select" onchange="filterEvents()">
+                            <option value="">All Filters</option>
+                            {% for department in departments %}
+                            <option value="department-{{ department.id }}">{{ department.name }}</option>
+                            {% endfor %}
+                            {% for day in days %}
+                            <option value="day-{{ day }}">Day {{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Search Events</h5>
+                        <input type="text" id="searchInput" class="form-control" onkeyup="filterEvents()" placeholder="Search by title...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Events Message -->
+        <div class="no-events" id="noEventsMessage">
+            <h4>No events available</h4>
+        </div>
+
+        <!-- Top Events Section -->
+        <div class="card mb-4" id="topEvents" style="display: none;">
+            <div class="card-body">
+                <h2 class="card-title">Top Events</h2>
+                <table class="table table-striped mt-3" id="topEventsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Actions</th>
+                            <th>Registrations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in top_events %}
+                        <tr class="event-row" data-department="department-{{ event.department.id }}" data-day="day-{{ event.date|date:'N' }}">
+                            <td>{{ event.id }}</td>
+                            <td class="event-title">{{ event.title }}</td>
+                            <td>{{ event.description }}</td>
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.time }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>{{ event.capacity }}</td>
+                            <td>
+                                <a href="{% url 'update_event' event.id %}" class="btn btn-warning btn-sm btn-custom"><i class="fas fa-edit me-1"></i>Edit</a>
+                                <a href="{% url 'delete_event' event.id %}" class="btn btn-danger btn-sm btn-custom" onclick="return confirm('Are you sure you want to delete this event?');"><i class="fas fa-trash-alt me-1"></i>Delete</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'event_registration_list' event.id %}" class="btn btn-info btn-sm btn-custom"><i class="fas fa-users me-1"></i>View Registrations</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">No events available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All Events Section Grouped by Day -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title mb-4">All Events</h2>
+                {% for day, day_events in events_by_day.items %}
+                <h3>Day {{ day }}</h3>
+                <table class="table table-striped mt-3 mb-4 all-events-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Actions</th>
+                            <th>Registrations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in day_events %}
+                        <tr class="event-row" data-department="department-{{ event.department.id }}" data-day="day-{{ event.date|date:'N' }}">
+                            <td>{{ event.id }}</td>
+                            <td class="event-title">{{ event.title }}</td>
+                            <td>{{ event.description }}</td>
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.time }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>{{ event.capacity }}</td>
+                            <td>
+                                <a href="{% url 'update_event' event.id %}" class="btn btn-warning btn-sm btn-custom"><i class="fas fa-edit me-1"></i>Edit</a>
+                                <a href="{% url 'delete_event' event.id %}" class="btn btn-danger btn-sm btn-custom" onclick="return confirm('Are you sure you want to delete this event?');"><i class="fas fa-trash-alt me-1"></i>Delete</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'event_registration_list' event.id %}" class="btn btn-info btn-sm btn-custom"><i class="fas fa-users me-1"></i>View Registrations</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">No events available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filterEvents() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const filterValue = document.getElementById('combinedFilter').value;
+            let eventsAvailable = false;
+
+            document.querySelectorAll('.event-row').forEach(row => {
+                const title = row.querySelector('.event-title').textContent.toLowerCase();
+                const department = row.getAttribute('data-department');
+                const day = row.getAttribute('data-day');
+
+                // Determine whether to show the row
+                let showRow = true;
+
+                // Search filter
+                if (searchValue && !title.includes(searchValue)) {
+                    showRow = false;
+                }
+
+                // Combined filter
+                if (filterValue) {
+                    if (filterValue.startsWith('department-') && department !== filterValue) {
+                        showRow = false;
+                    }
+                    if (filterValue.startsWith('day-') && day !== filterValue.split('-')[1]) {
+                        showRow = false;
+                    }
+                }
+
+                // Apply row visibility
+                row.style.display = showRow ? '' : 'none';
+
+                // Update availability status
+                if (showRow) {
+                    eventsAvailable = true;
+                }
+            });
+
+            // Show or hide the "No Events" message based on availability
+            document.getElementById('topEvents').style.display = eventsAvailable ? 'block' : 'none';
+            document.getElementById('noEventsMessage').style.display = eventsAvailable ? 'none' : 'block';
+        }
+
+        // Initial check for visibility
+        filterEvents();
+    </script>
+</body>
+</html>

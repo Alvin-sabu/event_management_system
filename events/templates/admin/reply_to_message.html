@@ -1,0 +1,13 @@
+<!-- templates/admin/reply_to_message.html -->
+
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+<h1>Reply to Selected Messages</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="ids" value="{{ ids }}">
+    <button type="submit" class="button">Send Reply</button>
+</form>
+{% endblock %}

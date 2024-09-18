@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Registration Confirmation</title>
+</head>
+<body>
+    <h2>Marian College Kuttikkanam Autonomous</h2>
+    <p>Dear {{ registration.name }},</p>
+    <p>Thank you for registering for the event "{{ registration.event.title }}".</p>
+    <p>Your registration details:</p>
+    <ul>
+        <li>Event: {{ registration.event.title }}</li>
+        <li>Date: {{ registration.event.date }}</li>
+        <li>Time: {{ registration.event.time }}</li>
+        <li>Name: {{ registration.name }}</li>
+        <li>Email: {{ registration.email }}</li>
+        <li>Registration Token: {{ registration.token }}</li>
+    </ul>
+    <p>We look forward to seeing you at the event!</p>
+    <p>Best regards,</p>
+    <p>Event Management Team</p>
+</body>
+</html>

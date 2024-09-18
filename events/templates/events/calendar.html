@@ -1,0 +1,120 @@
+<!-- calendar_view.html -->
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .calendar-container {
+        margin-top: 30px;
+        text-align: center;
+    }
+    table.calendar {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+        font-size: 1rem;
+    }
+    table.calendar th {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+    table.calendar td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+        vertical-align: top;
+    }
+    table.calendar .day {
+        cursor: pointer;
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 50%;
+        transition: background-color 0.3s ease;
+    }
+    table.calendar .day:hover {
+        background-color: #e9ecef;
+    }
+    table.calendar .event-day {
+        background-color: #ffdddd; /* Light red for days with events */
+        color: #dc3545; /* Red text for better readability */
+    }
+    #event-details {
+        margin-top: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    #event-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    #event-list li {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        text-align: left;
+        transition: background-color 0.3s ease;
+    }
+    #event-list li:hover {
+        background-color: #e9ecef;
+    }
+    .btn-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    .btn-container a {
+        margin: 0 10px;
+    }
+    .btn-container a:hover {
+        background-color: #e2e6ea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container calendar-container">
+    <h1 class="text-center mb-4">Event Calendar</h1>
+    <div class="btn-container">
+        <a href="{{ prev_url }}" class="btn btn-outline-primary">&laquo; Previous Month</a>
+        <a href="{{ next_url }}" class="btn btn-outline-primary">Next Month &raquo;</a>
+    </div>
+    <div class="d-flex justify-content-center">
+        <table class="calendar" aria-label="Calendar">
+            {{ calendar|safe }}
+        </table>
+    </div>
+    <div id="event-details">
+        <!-- Event details will be dynamically displayed here -->
+    </div>
+    <ul id="event-list">
+        <!-- Event list will be dynamically displayed here -->
+    </ul>
+</div>
+
+<script>
+    document.querySelectorAll('.day').forEach(day => {
+        day.addEventListener('click', function() {
+            // Fetch and display event details for the clicked day
+            const date = this.getAttribute('data-date');
+            fetch(`/events/${date}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('event-details').innerHTML = `
+                        <h4>Events on ${date}</h4>
+                        <ul>
+                            ${data.events.map(event => `<li>${event.title} - ${event.time}</li>`).join('')}
+                        </ul>
+                    `;
+                });
+        });
+    });
+</script>
+{% endblock %}

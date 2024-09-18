@@ -1,0 +1,7 @@
+<!-- award_prize.html -->
+<h2>Award Prize for {{ event.title }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>

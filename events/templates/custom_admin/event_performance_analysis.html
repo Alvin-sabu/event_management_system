@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Performance Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add Open Graph meta tags for better sharing -->
+    <meta property="og:title" content="Event Performance Analysis">
+    <meta property="og:description" content="Analyze event performance with interactive charts">
+    <meta property="og:image" content="/api/placeholder/1200/630">
+    <meta property="og:url" content="https://example.com/event-performance-analysis">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Event Performance Analysis</h1>
+            <a href="{% url 'admin_dashboard' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Home
+            </a>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Total Registrations</h2>
+                <div class="h-80">
+                    <canvas id="totalRegistrationsChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Capacity Utilization</h2>
+                <div class="h-80">
+                    <canvas id="capacityUtilizationChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Top Events</h2>
+                <div class="h-80">
+                    <canvas id="topEventsChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Department Contribution</h2>
+                <div class="h-80">
+                    <canvas id="departmentContributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add share buttons -->
+        <div class="mt-8 text-center">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Share this analysis:</h3>
+            <div class="flex justify-center space-x-4">
+                <a href="#" onclick="shareOn('facebook')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Share on Facebook
+                </a>
+                <a href="#" onclick="shareOn('twitter')" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    Share on Twitter
+                </a>
+                <a href="#" onclick="shareOn('linkedin')" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">
+                    Share on LinkedIn
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createChart(ctx, type, labels, data, label, backgroundColor, borderColor) {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: label,
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Events',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: label,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Total Registrations Chart
+        const ctxTotalRegistrations = document.getElementById('totalRegistrationsChart').getContext('2d');
+        createChart(
+            ctxTotalRegistrations, 
+            'bar',
+            [{% for event in events %}'{{ event.title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            [{% for event in events %}{{ event.total_registrations }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            'Total Registrations',
+            'rgba(59, 130, 246, 0.5)',
+            'rgba(59, 130, 246, 1)'
+        );
+
+        // Capacity Utilization Chart
+        const ctxCapacityUtilization = document.getElementById('capacityUtilizationChart').getContext('2d');
+        createChart(
+            ctxCapacityUtilization, 
+            'bar',
+            [{% for event in events %}'{{ event.title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            [{% for event in events %}{{ event.capacity_utilization|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            'Capacity Utilization (%)',
+            'rgba(16, 185, 129, 0.5)',
+            'rgba(16, 185, 129, 1)'
+        );
+
+        // Top Events Chart
+        const ctxTopEvents = document.getElementById('topEventsChart').getContext('2d');
+        createChart(
+            ctxTopEvents, 
+            'bar',
+            [{% for event in top_events %}'{{ event.title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            [{% for event in top_events %}{{ event.total_registrations }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            'Top Events by Registrations',
+            'rgba(251, 191, 36, 0.5)',
+            'rgba(251, 191, 36, 1)'
+        );
+
+        // Department Contribution Chart
+        const ctxDepartmentContribution = document.getElementById('departmentContributionChart').getContext('2d');
+        createChart(
+            ctxDepartmentContribution, 
+            'bar',
+            [{% for dept in department_contributions %}'{{ dept.department__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            [{% for dept in department_contributions %}{{ dept.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            'Department Contributions',
+            'rgba(239, 68, 68, 0.5)',
+            'rgba(239, 68, 68, 1)'
+        );
+
+        // Function to handle sharing
+        function shareOn(platform) {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out this Event Performance Analysis!');
+            let shareUrl;
+
+            switch(platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+                    break;
+                case 'linkedin':
+                    shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+                    break;
+            }
+
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-form input, .filter-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+        .filter-form button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .filter-form button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: left;
+            color: #2c3e50;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #e9f5fe;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #27ae60;
+        }
+        .rating {
+            font-weight: bold;
+        }
+        .excellent { color: #2ecc71; }
+        .good { color: #3498db; }
+        .average { color: #f39c12; }
+        .poor { color: #e74c3c; }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-comments"></i> Feedbacks</h1>
+
+        <div class="card">
+            <form method="get" class="filter-form" id="filter-form">
+                <input type="text" name="search" placeholder="Search by Event or User" value="{{ request.GET.search }}">
+                <select name="rating">
+                    <option value="">Select Rating</option>
+                    <option value="Excellent" {% if request.GET.rating == 'Excellent' %}selected{% endif %}>Excellent</option>
+                    <option value="Good" {% if request.GET.rating == 'Good' %}selected{% endif %}>Good</option>
+                    <option value="Average" {% if request.GET.rating == 'Average' %}selected{% endif %}>Average</option>
+                    <option value="Poor" {% if request.GET.rating == 'Poor' %}selected{% endif %}>Poor</option>
+                </select>
+                <button type="submit"><i class="fas fa-filter"></i> Filter</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <table id="feedback-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Event</th>
+                        <th>User</th>
+                        <th>Overall Rating</th>
+                        <th>Content Relevance</th>
+                        <th>Speaker Evaluation</th>
+                        <th>Organization Rating</th>
+                        <th>Suggestions</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.id }}</td>
+                        <td>{{ feedback.event.title }}</td>
+                        <td>{{ feedback.user.username }}</td>
+                        <td class="rating {{ feedback.overall_rating|lower }}">{{ feedback.overall_rating }}</td>
+                        <td>{{ feedback.content_relevance }}</td>
+                        <td>{{ feedback.speaker_evaluation }}</td>
+                        <td>{{ feedback.organization_rating }}</td>
+                        <td>{{ feedback.suggestions|default:"N/A" }}</td>
+                        <td>{{ feedback.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">No feedbacks available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <a href="{% url 'admin_dashboard' %}" class="btn"><i class="fas fa-home"></i> Home</a>
+            <a href="{% url 'export_feedback' %}" class="btn"><i class="fas fa-download"></i> Export Feedbacks</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#feedback-table').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 10,
+                "language": {
+                    "search": "Quick Search:",
+                    "paginate": {
+                        "first": "<i class='fas fa-angle-double-left'></i>",
+                        "last": "<i class='fas fa-angle-double-right'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>",
+                        "previous": "<i class='fas fa-angle-left'></i>"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
