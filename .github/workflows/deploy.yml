@@ -25,15 +25,34 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t <your-docker-image-name> .
-        docker tag <your-docker-image-name> <your-dockerhub-repo>/<your-docker-image-name>:latest
+        docker build -t event_management_system .
+        docker tag event_management_system alvinksabu/event_management_system:latest
+
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-        docker push <your-dockerhub-repo>/<your-docker-image-name>:latest
+        docker push alvinksabu/event_management_system:latest
 
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_PRIVATE_KEY }} ubuntu@${{ secrets.EC2_PUBLIC_IP }} "
-        cd /home/ubuntu/<your-project-directory> &&
-        git pull origin main &&
-        sudo docker-compose down &&
-        sudo docker-compose up -d"
+        # Save the EC2 private key to a file
+        echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2_key.pem
+        chmod 400 ec2_key.pem
+        
+        # SSH into EC2, install Docker/Docker Compose, pull the latest Docker image, and restart the containers
+        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          sudo apt-get update &&
+          sudo apt-get install -y docker.io docker-compose &&
+          sudo systemctl start docker &&
+          sudo systemctl enable docker &&
+          
+          # Navigate to the project directory and pull the latest changes
+          cd /home/ubuntu/event_management_system &&
+          git pull origin main &&
+          
+          # Stop current Docker containers, pull the latest Docker image, and restart containers
+          sudo docker-compose down &&
+          sudo docker-compose pull &&
+          sudo docker-compose up -d
+        EOF
+
+    - name: Clean up SSH key
+      run: rm ec2_key.pem
