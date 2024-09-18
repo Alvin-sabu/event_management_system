@@ -27,7 +27,6 @@ jobs:
       run: |
         docker build -t event_management_system .
         docker tag event_management_system alvinksabu/event_management_system:latest
-
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
         docker push alvinksabu/event_management_system:latest
 
