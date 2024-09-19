@@ -33,7 +33,8 @@ jobs:
         pip install -r requirements.txt
 
     - name: Copy repository to EC2
-      run: scp -r * ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/event_management_system
+      run: |
+        rsync -av --exclude='__pycache__' --exclude='.git' . ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/event_management_system
 
     - name: Build and Push Docker Image
       run: |
@@ -58,7 +59,7 @@ jobs:
           fi
           
           # Navigate to the project directory and pull the latest changes
-          cd /home/ec2-user/event_management_system || exit
+          cd /home/ubuntu/event_management_system || exit
           git pull origin main || exit
           
           # Stop current Docker containers, pull the latest Docker image, and restart containers
