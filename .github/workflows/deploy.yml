@@ -23,6 +23,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+    - name: Add EC2 Host to Known Hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
