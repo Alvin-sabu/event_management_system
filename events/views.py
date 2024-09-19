@@ -812,7 +812,7 @@ def create_event(request):
         form = EventForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('admin_dashboard')
+            return redirect('list_events')
     else:
         form = EventForm()
     return render(request, 'custom_admin/create_event.html', {'form': form})
@@ -1073,63 +1073,54 @@ def delete_college_poster(request, poster_id):
     return render(request, 'custom_admin/delete_college_poster.html', {'object': poster})
 
 
+from django.shortcuts import render
+from django.utils import timezone
+from .models import Event, Fest, Department
+from django.db.models import Q
+
 def list_events(request):
-    # Get filter and search query from request
     filter_value = request.GET.get('filter', '')
     search_query = request.GET.get('search', '')
 
-    # Initial queryset for events
     events = Event.objects.all()
+    now = timezone.now()
+    current_fest = Fest.objects.filter(start_date__lte=now, end_date__gte=now).first()
 
-    # Filter events by department or day based on the combined filter value
     if filter_value:
         if filter_value.startswith('department-'):
             department_id = filter_value.split('-')[1]
             events = events.filter(department_id=department_id)
-        elif filter_value.startswith('day-'):
-            day = filter_value.split('-')[1]
-            # Fetch the current fest to use its date range
-            now = timezone.now()
-            current_fest = Fest.objects.filter(start_date__lte=now, end_date__gte=now).first()
-            if current_fest:
-                fest_start_date = current_fest.start_date
-                start_date = fest_start_date + timezone.timedelta(days=int(day) - 1)
-                end_date = start_date + timezone.timedelta(days=1)
-                events = events.filter(date__range=(start_date, end_date))
-    
-    # Further filter events by search query if provided
+        elif filter_value.startswith('day-') and current_fest:
+            day = int(filter_value.split('-')[1])
+            start_date = current_fest.start_date + timezone.timedelta(days=day - 1)
+            end_date = start_date + timezone.timedelta(days=1)
+            events = events.filter(date__range=(start_date, end_date))
+
     if search_query:
-        events = events.filter(title__icontains=search_query)
+        events = events.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
-    # Define top events (e.g., based on capacity or any other criteria)
-    top_events = events.filter(capacity__gte=100)  # Example criterion for top events
-
-    # Fetch all departments for the filter dropdown
+    top_events = events.filter(capacity__gte=100)
     departments = Department.objects.all()
 
-    # Fetch days for filtering dropdown (assuming the fest is ongoing)
-    days = []
-    now = timezone.now()
-    current_fest = Fest.objects.filter(start_date__lte=now, end_date__gte=now).first()
+    events_by_day = {}
     if current_fest:
-        fest_start_date = current_fest.start_date
-        total_days = (current_fest.end_date - fest_start_date).days + 1
+        total_days = (current_fest.end_date - current_fest.start_date).days + 1
         days = list(range(1, total_days + 1))
-
-    # Group events by the day of the fest
-    events_by_day = defaultdict(list)
-    if current_fest:
-        fest_start_date = current_fest.start_date
         for event in events:
-            event_day = (event.date - fest_start_date).days + 1
-            if 1 <= event_day <= (current_fest.end_date - fest_start_date).days + 1:
-                events_by_day[event_day].append(event)
+            event_day = (event.date - current_fest.start_date).days + 1
+            if 1 <= event_day <= total_days:
+                events_by_day.setdefault(event_day, []).append(event)
+    else:
+        for event in events:
+            events_by_day.setdefault(event.date, []).append(event)
+        days = sorted(events_by_day.keys())
 
     context = {
-        'events_by_day': dict(events_by_day),  # Converting defaultdict to regular dict for the template
+        'events_by_day': events_by_day,
         'top_events': top_events,
         'departments': departments,
         'days': days,
+        'current_fest': current_fest,
     }
 
     return render(request, 'custom_admin/list_events.html', context)
