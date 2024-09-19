@@ -142,9 +142,22 @@ class NewsItemAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     readonly_fields = ('created_at',)
 
+from django.utils.html import format_html
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import EventPhoto
+
 @admin.register(EventPhoto)
 class EventPhotoAdmin(admin.ModelAdmin):
-    list_display = ('description', 'image')
+    list_display = ('title', 'description', 'display_photo')
+
+    def display_photo(self, obj):
+        if obj.photo:
+            return format_html('<img src="{}" width="50" height="50"/>', obj.photo.url)
+        return "No Photo"
+    
+    display_photo.short_description = 'Photo'
+
 
 admin.site.register(NewsItem, NewsItemAdmin)
 admin.site.register(Fest)

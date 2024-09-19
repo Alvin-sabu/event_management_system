@@ -704,9 +704,9 @@ def admin_dashboard(request):
             activities.append(f"Feedback exported for {feedback.event.title} on {feedback.exported_at.strftime('%Y-%m-%d') if feedback.exported_at else ''}")
 
         # Recent photos added
-        recent_photos = photos.order_by('-created_at')[:5]
+        recent_photos = photos.order_by('-uploaded_at')[:5]
         for photo in recent_photos:
-            activities.append(f"New photo added: {photo.description} on {photo.created_at.strftime('%Y-%m-%d') if photo.created_at else 'unknown date'}")
+            activities.append(f"New photo added: {photo.description} on {photo.uploaded_at.strftime('%Y-%m-%d') if photo.uploaded_at else 'unknown date'}")
 
         return activities
 
@@ -1488,35 +1488,58 @@ def add_photo(request):
         form = EventPhotoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('index')  # Redirect to a relevant page after adding
+            return redirect('list_photos')  # Ensure this URL exists
     else:
         form = EventPhotoForm()
+    
     return render(request, 'custom_admin/add_photo.html', {'form': form})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import EventPhoto
+from .forms import EventPhotoForm
 
 @login_required
 def edit_photo(request, photo_id):
+    # Fetch the photo or return 404 if not found
     photo = get_object_or_404(EventPhoto, id=photo_id)
+    
+    # Handle form submission
     if request.method == 'POST':
         form = EventPhotoForm(request.POST, request.FILES, instance=photo)
         if form.is_valid():
             form.save()
-            return redirect('index')  # Redirect to a relevant page after editing
+            # Redirect to a page after successfully saving the form
+            return redirect('list_photos')  # Changed to list_photos to view all photos after editing
     else:
         form = EventPhotoForm(instance=photo)
+    
+    # Render the edit page with the form
     return render(request, 'custom_admin/edit_photo.html', {'form': form, 'photo': photo})
 
 @login_required
 def delete_photo(request, photo_id):
+    # Fetch the photo or return 404 if not found
     photo = get_object_or_404(EventPhoto, id=photo_id)
+    
+    # Handle deletion after confirmation
     if request.method == 'POST':
         photo.delete()
-        return redirect('index')  # Redirect to a relevant page after deleting
+        # Redirect to the list of photos after deletion
+        return redirect('list_photos')  # Changed to list_photos to view all photos after deletion
+    
+    # Render the confirmation page for deletion
     return render(request, 'custom_admin/confirm_delete.html', {'photo': photo})
 
 @login_required
 def list_photos(request):
+    # Fetch all photos from the database
     photos = EventPhoto.objects.all()
+    
+    # Render the list of photos
     return render(request, 'custom_admin/list_photos.html', {'photos': photos})
+
 
 
 @login_required

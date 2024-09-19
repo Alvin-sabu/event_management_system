@@ -259,4 +259,4 @@ from .models import EventPhoto
 class EventPhotoForm(forms.ModelForm):
     class Meta:
         model = EventPhoto
-        fields = ['image', 'description']
+        fields = ['title', 'description', 'photo'] 

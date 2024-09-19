@@ -215,11 +215,12 @@ class NewsItem(models.Model):
         return self.title
 
     
-
 class EventPhoto(models.Model):
-    image = models.ImageField(upload_to='event_photos/')
-    description = models.CharField(max_length=255, blank=True)
-    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    title = models.CharField(max_length=200, default='Untitled')
+    description = models.TextField()
+    photo = models.ImageField(upload_to='event_photos/')  # Change 'image' to 'photo'
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.description or "No description"
+        return self.title
+

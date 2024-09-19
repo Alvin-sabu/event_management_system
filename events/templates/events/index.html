@@ -266,7 +266,7 @@
         <div class="event-photos-container">
             {% if event_photos %}
                 {% for photo in event_photos %}
-                    <img src="{{ photo.image.url }}" alt="{{ photo.description }}" class="event-photo {% if forloop.first %}active{% endif %}">
+                <img src="{{ photo.photo.url }}" alt="{{ photo.description }}" class="event-photo {% if forloop.first %}active{% endif %}">
                 {% endfor %}
             {% else %}
                 <img src="{% static 'default-placeholder.jpg' %}" alt="No photos available" class="event-photo active">
@@ -281,7 +281,11 @@
                 {% for news_item in news_items %}
                     <div class="col-md-4 mb-3">
                         <div class="news-item">
-                            <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="news-image">
+                            {% if news_item.image %}
+                                <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="news-image">
+                            {% else %}
+                                <img src="/static/default-image.jpg" alt="No Image Available" class="news-image"> <!-- Placeholder image -->
+                            {% endif %}
                             <p class="news-date">{{ news_item.publication_date|date:"F d, Y" }}</p>
                             <h3 class="news-title">{{ news_item.title }}</h3>
                             <div class="news-excerpt">
@@ -294,7 +298,7 @@
             </div>
         </div>
     </section>
-
+    
     <footer class="footer text-center">
         <div class="container">
             <p>&copy; 2024 Marian College Kuttikkanam. All Rights Reserved.</p>
