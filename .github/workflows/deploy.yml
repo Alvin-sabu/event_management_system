@@ -33,7 +33,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Copy repository to EC2
-      run: scp -r . ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ec2-user/event_management_system
+      run: scp -r * ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ec2-user/event_management_system
 
     - name: Build and Push Docker Image
       run: |
@@ -48,20 +48,22 @@ jobs:
         echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2_key.pem
         chmod 400 ec2_key.pem
         
-        # SSH into EC2, install Docker/Docker Compose, pull the latest Docker image, and restart the containers
+        # SSH into EC2, install Docker/Docker Compose if not already installed, pull the latest Docker image, and restart the containers
         ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          sudo apt-get update &&
-          sudo apt-get install -y docker.io docker-compose &&
-          sudo systemctl start docker &&
-          sudo systemctl enable docker &&
+          sudo apt-get update
+          if ! command -v docker &> /dev/null; then
+            sudo apt-get install -y docker.io docker-compose
+            sudo systemctl start docker
+            sudo systemctl enable docker
+          fi
           
           # Navigate to the project directory and pull the latest changes
-          cd /home/ec2-user/event_management_system &&
-          git pull origin main &&
+          cd /home/ec2-user/event_management_system || exit
+          git pull origin main || exit
           
           # Stop current Docker containers, pull the latest Docker image, and restart containers
-          sudo docker-compose down &&
-          sudo docker-compose pull &&
+          sudo docker-compose down
+          sudo docker-compose pull
           sudo docker-compose up -d
         EOF
 
