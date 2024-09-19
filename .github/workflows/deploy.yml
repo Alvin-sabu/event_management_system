@@ -52,13 +52,18 @@ jobs:
             sudo systemctl enable docker
           fi
           
+          # Navigate to the project directory
+          cd /home/ubuntu/event_management_system || exit
+
+          # Clean up untracked files and pull the latest changes
+          git clean -f
+          git pull origin main || exit
+          
           # Stop current Docker containers and remove them
           sudo docker-compose down
 
-          # Pull the latest Docker image
-          sudo docker pull alvinksabu/django-app
-
-          # Restart containers using the updated image
+          # Pull the latest Docker image and restart containers
+          sudo docker-compose pull
           sudo docker-compose up -d
         EOF
 
