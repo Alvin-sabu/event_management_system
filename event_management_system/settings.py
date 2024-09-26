@@ -87,11 +87,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata'
-USE_I18N = True
-USE_TZ = True
+# Internationalization settings
+LANGUAGE_CODE = 'en-us'  # Default language set to U.S. English
+TIME_ZONE = 'Asia/Kolkata'  # Time zone set to Indian Standard Time (IST)
+USE_I18N = True  # Enable Django's internationalization system
+USE_TZ = True  # Enable timezone-aware datetime handling
+
 
 # # Static files (CSS, JavaScript, Images)
 # # Use S3 for static files in production

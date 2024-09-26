@@ -60,13 +60,19 @@ def index(request):
 
     # Fetch all event photos
     event_photos = EventPhoto.objects.all()  # Assuming EventPhoto is your model
+    upcoming_fest = Fest.objects.filter(start_date__gt=timezone.now()).order_by('start_date').first()
+    all_events = Event.objects.all().order_by('date')
 
     return render(request, 'index.html', {
         'login_form': login_form,
         'signup_form': signup_form,
         'videos': videos,
         'news_items': news_items,
-        'event_photos': event_photos,  # Pass event photos to the template
+        'event_photos': event_photos,
+        'upcoming_fest': upcoming_fest, 
+        'all_events': all_events, 
+        'events': all_events,
+          # Pass event photos to the template
     })
 
 
@@ -215,14 +221,20 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     registration_form = EventRegistrationForm(initial={'event_id': event_id})
     
+    # Get all events
+    all_events = Event.objects.all()
+    
+    # Get posters
+    posters = CollegePoster.objects.all()
+    
     context = {
         'event': event,
         'registration_form': registration_form,
-        'events': Event.objects.all(),
+        'events': all_events,
+        'posters': posters,
     }
     
     return render(request, 'events/event_detail.html', context)
-
 
 @login_required
 def registration_closed(request):
@@ -383,6 +395,7 @@ def calendar_view(request, year=datetime.now().year, month=datetime.now().strfti
         'next_url': next_url,
         'year': year,
         'month': month,
+        'events': Event.objects.all(),
     }
     return render(request, 'events/calendar.html', context)
 
@@ -459,7 +472,7 @@ def event_feedback_report(request, event_id):
         'ratings': ratings
     }
     return render(request, 'events/feedback_report.html', context)
-
+from django.db.models import Prefetch
 
 def results_page(request, event_id):
     event = get_object_or_404(Event, id=event_id)
@@ -484,7 +497,9 @@ def results_page(request, event_id):
         'event': event,
         'registrations': sorted_registrations,
         'no_results': not sorted_registrations,
-        'current_year': timezone.now().year
+        'current_year': timezone.now().year,
+        'events': Event.objects.all(),
+        
     })
 
 def contact(request):
@@ -896,14 +911,6 @@ def delete_department_view(request, department_id):
         return redirect('admin_dashboard')
     return render(request, 'custom_admin/delete_department.html', {'object': department})
 
-@login_required
-def manage_fests(request):
-    # Add logic to retrieve necessary data for managing fests
-    fests = Fest.objects.all()
-    context = {
-        'fests': fests,
-    }
-    return render(request, 'custom_admin/manage_fests.html', context)
 
 @login_required
 @user_passes_test(admin_required)
@@ -925,7 +932,7 @@ def update_fest_view(request, fest_id):
         form = FestForm(request.POST, instance=fest)
         if form.is_valid():
             form.save()
-            return redirect('manage_fests')  # Redirect to the fest management page or another relevant page
+            return redirect('admin_dashboard')  # Redirect to the fest management page or another relevant page
     else:
         form = FestForm(instance=fest)
     return render(request, 'custom_admin/update_fest.html', {'form': form})
@@ -1295,15 +1302,50 @@ def manage_event_and_winners(request, event_id=None):
     }
     return render(request, 'custom_admin/manage_event_and_winners.html', context)
 
+
+
+# def send_prize_notification_emails(winners, event):
+#     for prize_type, registration in winners.items():
+#         if registration:
+#             user = registration.user
+#             subject = f'Congratulations! You have won the {prize_type.replace("_", " ").title()} Prize'
+#             message = f'Hello {user.first_name},\n\nCongratulations! You have been awarded the {prize_type.replace("_", " ").title()} Prize for the event "{event.title}".'
+#             from_email = settings.DEFAULT_FROM_EMAIL
+#             recipient_list = [user.email]
+            
+#             try:
+#                 send_mail(
+#                     subject=subject,
+#                     message=message,
+#                     from_email=from_email,
+#                     recipient_list=recipient_list,
+#                     fail_silently=False,
+#                 )
+#                 print(f"Email sent successfully to {user.email}")
+#             except Exception as e:
+#                 print(f"Failed to send email to {user.email}: {str(e)}")
+#                 raise  # Re-raise the exception to be caught in the calling function
+
+
 def send_prize_notification_emails(winners, event):
     for prize_type, registration in winners.items():
         if registration:
-            user = registration.user
-            subject = f'Congratulations! You have won the {prize_type.replace("_", " ").title()} Prize'
-            message = f'Hello {user.first_name},\n\nCongratulations! You have been awarded the {prize_type.replace("_", " ").title()} Prize for the event "{event.title}".'
+            # Use the name from the registration object
+            name = registration.name or registration.user.first_name
+            subject = f'🎉 Congratulations! You\'ve Won the {prize_type.replace("_", " ").title()} Prize!'
+            message = (
+                f"Dear {name},\n\n"
+                f"We are thrilled to announce that you have secured the **{prize_type.replace('_', ' ').title()} Prize** in the event \"{event.title}\"! 🏆\n\n"
+                f"Your outstanding performance has truly set you apart, and we couldn't be prouder to celebrate your achievement.\n\n"
+                f"Keep shining, and we look forward to seeing more of your amazing accomplishments in the future!\n\n"
+                f"Warmest congratulations once again from all of us.\n\n"
+                f"Best regards,\n"
+                f"Event Management Team\n"
+                f"Marian College Kuttikkanam"
+            )
             from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = [user.email]
-            
+            recipient_list = [registration.email]
+
             try:
                 send_mail(
                     subject=subject,
@@ -1312,9 +1354,9 @@ def send_prize_notification_emails(winners, event):
                     recipient_list=recipient_list,
                     fail_silently=False,
                 )
-                print(f"Email sent successfully to {user.email}")
+                print(f"Email sent successfully to {registration.email}")
             except Exception as e:
-                print(f"Failed to send email to {user.email}: {str(e)}")
+                print(f"Failed to send email to {registration.email}: {str(e)}")
                 raise  # Re-raise the exception to be caught in the calling function
 
 

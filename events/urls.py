@@ -22,7 +22,6 @@ from .views import (
     create_fest,
     upload_college_poster,
     view_feedbacks,
-    manage_fests,
     manage_college_posters
 )
 from .views import (
@@ -93,7 +92,6 @@ urlpatterns = [
     path('admin/fest/create/', create_fest, name='create_fest'),
     path('admin/college_poster/upload/', upload_college_poster, name='upload_college_poster'),
     path('admin/feedbacks/', view_feedbacks, name='view_feedbacks'),
-    path('admin/fests/manage/', manage_fests, name='manage_fests'),
     path('admin/college_posters/manage/', manage_college_posters, name='manage_college_posters'),
     path('events/', views.list_events, name='list_events'),
     path('departments/', views.list_departments, name='list_departments'),

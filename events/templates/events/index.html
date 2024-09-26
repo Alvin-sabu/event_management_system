@@ -205,6 +205,145 @@
         .footer .social-icons a:hover {
             color: #b4ae0b;
         }
+        .countdown-section {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    padding: 3rem 0;
+    text-align: center;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+        }
+
+        .countdown-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fdbb2d;
+            margin-bottom: 1rem;
+        }
+
+        .countdown-section h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .countdown-item {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            min-width: 120px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #b21f1f;
+        }
+
+        .countdown-label {
+            font-size: 1.1rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .fest-live {
+            font-size: 2.5rem;
+            color: #fdbb2d;
+            font-weight: bold;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .countdown-container {
+                flex-direction: column;
+            }
+        }
+        .event-bar-section {
+        background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
+        padding: 1rem 0;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-bar-container {
+        display: flex;
+        white-space: nowrap;
+        animation: scroll-left 40s linear infinite;
+    }
+
+    .event-bar-item {
+        display: inline-block;
+        padding: 0.5rem 2rem;
+        margin: 0 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .event-bar-item:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .event-name {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .event-date {
+        font-weight: 400;
+        margin-left: 0.5rem;
+        opacity: 0.8;
+    }
+
+    @keyframes scroll-left {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    /* Add a gradient overlay to create a fading effect on the sides */
+    .event-bar-section::before,
+    .event-bar-section::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 100px;
+        height: 100%;
+        z-index: 2;
+    }
+
+    .event-bar-section::before {
+        left: 0;
+        background: linear-gradient(to right, #1a2a6c, transparent);
+    }
+
+    .event-bar-section::after {
+        right: 0;
+        background: linear-gradient(to left, #fdbb2d, transparent);
+    }
+
     </style>
 </head>
 <body>
@@ -237,139 +376,233 @@
             <button class="arrow-button right"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
-
-    <section class="features-section">
+    {% if upcoming_fest %}
+    <section class="countdown-section">
         <div class="container">
-            <h2 class="text-center mb-4">Why Choose Us</h2>
-            <div class="row">
-                <div class="col-md-4 feature-item">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h3>Best Education</h3>
-                    <p>Providing top-notch education to shape future leaders.</p>
+            <h2 class="text-center mb-4">The Grand Countdown</h2>
+            <h3>{{ upcoming_fest.name }}</h3>
+            <div id="countdown" class="countdown-container">
+                <div class="countdown-item">
+                    <span id="days" class="countdown-number">--</span>
+                    <span class="countdown-label">Days</span>
                 </div>
-                <div class="col-md-4 feature-item">
-                    <i class="fas fa-book"></i>
-                    <h3>Experienced Faculty</h3>
-                    <p>Learn from industry experts and accomplished academics.</p>
+                <div class="countdown-item">
+                    <span id="hours" class="countdown-number">--</span>
+                    <span class="countdown-label">Hours</span>
                 </div>
-                <div class="col-md-4 feature-item">
-                    <i class="fas fa-users"></i>
-                    <h3>Friendly Environment</h3>
-                    <p>Foster growth in a supportive and inclusive community.</p>
+                <div class="countdown-item">
+                    <span id="minutes" class="countdown-number">--</span>
+                    <span class="countdown-label">Minutes</span>
                 </div>
+                <div class="countdown-item">
+                    <span id="seconds" class="countdown-number">--</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+            <div id="fest-live" class="fest-live" style="display: none;">
+                The Fest is Live Now!
             </div>
         </div>
     </section>
+    {% endif %}
 
-    <section class="event-photos-section">
-        <h2 class="text-center mb-4">Event Highlights</h2>
-        <div class="event-photos-container">
-            {% if event_photos %}
-                {% for photo in event_photos %}
-                <img src="{{ photo.photo.url }}" alt="{{ photo.description }}" class="event-photo {% if forloop.first %}active{% endif %}">
-                {% endfor %}
-            {% else %}
-                <img src="{% static 'default-placeholder.jpg' %}" alt="No photos available" class="event-photo active">
-            {% endif %}
-        </div>
-    </section>
-
-    <section class="news-section">
-        <div class="container">
-            <h2 class="text-center mb-4">Latest News</h2>
-            <div class="row">
-                {% for news_item in news_items %}
-                    <div class="col-md-4 mb-3">
-                        <div class="news-item">
-                            {% if news_item.image %}
-                                <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="news-image">
-                            {% else %}
-                                <img src="/static/default-image.jpg" alt="No Image Available" class="news-image"> <!-- Placeholder image -->
-                            {% endif %}
-                            <p class="news-date">{{ news_item.publication_date|date:"F d, Y" }}</p>
-                            <h3 class="news-title">{{ news_item.title }}</h3>
-                            <div class="news-excerpt">
-                                <p>{{ news_item.content|truncatewords:20 }}</p>
-                            </div>
-                            <a href="{% url 'news_detail' news_item.id %}" class="btn btn-primary btn-sm btn-read-more">Read More</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+    <!-- New scrolling event bar section -->
+    <section class="event-bar-section">
+        <div class="event-bar-container">
+            {% for event in all_events %}
+                <div class="event-bar-item">
+                    <span class="event-name">{{ event.title }}</span>
+                    <span class="event-date">- {{ event.date|date:"F d, Y" }}</span>
+                </div>
+            {% endfor %}
         </div>
     </section>
     
-    <footer class="footer text-center">
-        <div class="container">
-            <p>&copy; 2024 Marian College Kuttikkanam. All Rights Reserved.</p>
-            <div class="social-icons">
-                <a href="https://www.facebook.com/MarianCollege" target="_blank" aria-label="Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://twitter.com/MarianCollege" target="_blank" aria-label="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://www.linkedin.com/school/marian-college" target="_blank" aria-label="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-                <a href="mailto:alvinksabu200115@gmail.com" aria-label="Email">
-                    <i class="fas fa-envelope"></i>
-                </a>
+<section class="features-section">
+    <div class="container">
+        <h2 class="text-center mb-4">Why Choose Us</h2>
+        <div class="row">
+            <div class="col-md-4 feature-item">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Best Education</h3>
+                <p>Providing top-notch education to shape future leaders.</p>
+            </div>
+            <div class="col-md-4 feature-item">
+                <i class="fas fa-book"></i>
+                <h3>Experienced Faculty</h3>
+                <p>Learn from industry experts and accomplished academics.</p>
+            </div>
+            <div class="col-md-4 feature-item">
+                <i class="fas fa-users"></i>
+                <h3>Friendly Environment</h3>
+                <p>Foster growth in a supportive and inclusive community.</p>
             </div>
         </div>
-    </footer>
+    </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Video slider functionality
-            let currentVideoIndex = 0;
-            const videos = document.querySelectorAll('.video-slider video');
-            const totalVideos = videos.length;
+<section class="event-photos-section">
+    <h2 class="text-center mb-4">Event Highlights</h2>
+    <div class="event-photos-container">
+        {% if event_photos %}
+            {% for photo in event_photos %}
+            <img src="{{ photo.photo.url }}" alt="{{ photo.description }}" class="event-photo {% if forloop.first %}active{% endif %}">
+            {% endfor %}
+        {% else %}
+            <img src="{% static 'default-placeholder.jpg' %}" alt="No photos available" class="event-photo active">
+        {% endif %}
+    </div>
+</section>
 
-            function showNextVideo() {
-                videos[currentVideoIndex].classList.remove('active');
-                currentVideoIndex = (currentVideoIndex + 1) % totalVideos;
-                videos[currentVideoIndex].classList.add('active');
-            }
+<section class="news-section">
+    <div class="container">
+        <h2 class="text-center mb-4">Latest News</h2>
+        <div class="row">
+            {% for news_item in news_items %}
+                <div class="col-md-4 mb-3">
+                    <div class="news-item">
+                        {% if news_item.image %}
+                            <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="news-image">
+                        {% else %}
+                            <img src="/static/default-image.jpg" alt="No Image Available" class="news-image">
+                        {% endif %}
+                        <p class="news-date">{{ news_item.publication_date|date:"F d, Y" }}</p>
+                        <h3 class="news-title">{{ news_item.title }}</h3>
+                        <div class="news-excerpt">
+                            <p>{{ news_item.content|truncatewords:20 }}</p>
+                        </div>
+                        <a href="{% url 'news_detail' news_item.id %}" class="btn btn-primary btn-sm btn-read-more">Read More</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
-            function showPrevVideo() {
-                videos[currentVideoIndex].classList.remove('active');
-                currentVideoIndex = (currentVideoIndex - 1 + totalVideos) % totalVideos;
-                videos[currentVideoIndex].classList.add('active');
-            }
+<footer class="footer text-center">
+    <div class="container">
+        <p>&copy; 2024 Marian College Kuttikkanam. All Rights Reserved.</p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/MarianCollege" target="_blank" aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://twitter.com/MarianCollege" target="_blank" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.linkedin.com/school/marian-college" target="_blank" aria-label="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="mailto:alvinksabu200115@gmail.com" aria-label="Email">
+                <i class="fas fa-envelope"></i>
+            </a>
+        </div>
+    </div>
+</footer>
 
-            document.querySelector('.arrow-button.right').addEventListener('click', showNextVideo);
-            document.querySelector('.arrow-button.left').addEventListener('click', showPrevVideo);
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Video slider functionality
+        let currentVideoIndex = 0;
+        const videos = document.querySelectorAll('.video-slider video');
+        const totalVideos = videos.length;
 
-            // Auto-change videos
-            let videoInterval = setInterval(showNextVideo, 5000); // Change video every 5 seconds
+        function showNextVideo() {
+            videos[currentVideoIndex].classList.remove('active');
+            currentVideoIndex = (currentVideoIndex + 1) % totalVideos;
+            videos[currentVideoIndex].classList.add('active');
+        }
 
-            // Reset interval when manually changing videos
-            document.querySelectorAll('.arrow-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    clearInterval(videoInterval);
-                    videoInterval = setInterval(showNextVideo, 5000);
-                });
+        function showPrevVideo() {
+            videos[currentVideoIndex].classList.remove('active');
+            currentVideoIndex = (currentVideoIndex - 1 + totalVideos) % totalVideos;
+            videos[currentVideoIndex].classList.add('active');
+        }
+
+        document.querySelector('.arrow-button.right').addEventListener('click', showNextVideo);
+        document.querySelector('.arrow-button.left').addEventListener('click', showPrevVideo);
+
+        // Auto-change videos
+        let videoInterval = setInterval(showNextVideo, 5000); // Change video every 5 seconds
+
+        // Reset interval when manually changing videos
+        document.querySelectorAll('.arrow-button').forEach(button => {
+            button.addEventListener('click', () => {
+                clearInterval(videoInterval);
+                videoInterval = setInterval(showNextVideo, 5000);
             });
-
-            // Event photos functionality
-            let currentPhotoIndex = 0;
-            const photos = document.querySelectorAll('.event-photo');
-            const totalPhotos = photos.length;
-
-            function showNextPhoto() {
-                photos[currentPhotoIndex].classList.remove('active');
-                currentPhotoIndex = (currentPhotoIndex + 1) % totalPhotos;
-                photos[currentPhotoIndex].classList.add('active');
-            }
-
-            // Auto-change event photos
-            setInterval(showNextPhoto, 5000); // Change photo every 5 seconds
         });
-    </script>
+
+        // New code for the scrolling event bar
+        const eventBarContainer = document.querySelector('.event-bar-container');
+            const eventBarWidth = eventBarContainer.scrollWidth;
+            const animationDuration = eventBarWidth / 50; // Adjust speed as needed
+
+            eventBarContainer.style.animationDuration = `${animationDuration}s`;
+
+            // Clone event items to ensure continuous scrolling
+            const eventItems = eventBarContainer.innerHTML;
+            eventBarContainer.innerHTML += eventItems;
+
+        // Event photos functionality
+        let currentPhotoIndex = 0;
+        const photos = document.querySelectorAll('.event-photo');
+        const totalPhotos = photos.length;
+
+        function showNextPhoto() {
+            photos[currentPhotoIndex].classList.remove('active');
+            currentPhotoIndex = (currentPhotoIndex + 1) % totalPhotos;
+            photos[currentPhotoIndex].classList.add('active');
+        }
+
+        // Auto-change event photos
+        setInterval(showNextPhoto, 5000); // Change photo every 5 seconds
+
+        // Countdown functionality
+        {% if upcoming_fest %}
+        const countDownDate = new Date("{{ upcoming_fest.start_date|date:'Y-m-d' }}").getTime();
+
+        console.log("Countdown date:", new Date(countDownDate));
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+            console.log("Current time:", new Date(now));
+            console.log("Time difference (ms):", distance);
+
+            if (distance <= 0) {
+                // The fest has started or is in the past
+                console.log("Fest has started or is in the past");
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").style.display = "none";
+                document.getElementById("fest-live").style.display = "block";
+            } else {
+                // The fest is still in the future
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                console.log("Countdown:", days, "days", hours, "hours", minutes, "minutes", seconds, "seconds");
+
+                document.getElementById("days").innerHTML = days;
+                document.getElementById("hours").innerHTML = hours;
+                document.getElementById("minutes").innerHTML = minutes;
+                document.getElementById("seconds").innerHTML = seconds;
+            }
+        }
+
+        // Run the function immediately and then every second
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000);
+    {% else %}
+        console.log("No upcoming fest found");
+    {% endif %}
+});
+</script>
+
 </body>
 </html>
