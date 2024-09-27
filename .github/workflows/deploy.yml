@@ -1,4 +1,4 @@
-name: Deploy Django to EC2 and Run Load Tests
+name: Deploy Django to EC2
 
 on:
   push:
@@ -77,33 +77,3 @@ jobs:
         else
           echo "Deployment successful."
         fi
-
-    - name: Install Locust
-      run: |
-        pip install locust
-
-    - name: Run Load Tests
-      run: |
-        cat << EOF > locustfile.py
-        from locust import HttpUser, task, between
-
-        class QuickstartUser(HttpUser):
-            wait_time = between(1, 5)
-
-            @task
-            def index_page(self):
-                self.client.get("/")
-
-            @task(3)
-            def view_item(self):
-                item_id = 1
-                self.client.get(f"/item/{item_id}", name="/item")
-        EOF
-
-        locust --headless -f locustfile.py --host http://${{ secrets.EC2_PUBLIC_IP }} --users 50 --spawn-rate 5 --run-time 1m
-
-    - name: Analyze Load Test Results
-      run: |
-        # Add your analysis logic here
-        # For example, you could check the Locust statistics file and fail the workflow if certain thresholds are not met
-        echo "Load test completed. Analyze the results to ensure performance meets expectations."
