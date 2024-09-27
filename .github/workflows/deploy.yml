@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t alvinksabu/django-app:latest .
+        DOCKER_BUILDKIT=1 docker build -t alvinksabu/django-app:latest .
 
     - name: Push Docker Image to Docker Hub
       run: |
