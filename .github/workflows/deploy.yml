@@ -10,7 +10,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -31,18 +30,16 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t alvinksabu/django-app .
+        docker build -t alvinksabu/django-app:latest .
 
     - name: Push Docker Image to Docker Hub
       run: |
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-        docker push alvinksabu/django-app
+        docker push alvinksabu/django-app:latest
 
     - name: Deploy to EC2
       run: |
-        echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2_key.pem
-        chmod 400 ec2_key.pem
-        ssh -o StrictHostKeyChecking=no -i ec2_key.pem -T ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
           sudo apt-get update
           if ! command -v docker &> /dev/null; then
             sudo apt-get install -y docker.io docker-compose
@@ -55,30 +52,27 @@ jobs:
           sudo docker-compose down
           sudo docker-compose pull
           sudo docker-compose up -d
-EOF
+        EOF
 
     - name: Run Django Migrations
       run: |
-        ssh -o StrictHostKeyChecking=no -i ec2_key.pem -T ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
           cd /home/ubuntu/event_management_system
           sudo docker-compose exec -T web python manage.py migrate
-EOF
+        EOF
 
     - name: Health Check
       run: |
         STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://${{ secrets.EC2_PUBLIC_IP }})
         if [ "$STATUS_CODE" -ne 200 ]; then
           echo "Health check failed, rolling back..."
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem -T ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             cd /home/ubuntu/event_management_system
             sudo docker-compose down
             sudo docker pull alvinksabu/django-app:previous
             sudo docker-compose up -d
-EOF
+          EOF
           exit 1
         else
           echo "Deployment successful."
         fi
-
-    - name: Clean up SSH key
-      run: rm ec2_key.pem
