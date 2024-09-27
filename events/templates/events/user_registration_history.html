@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-12 col-lg-10 mx-auto">
             <div class="card shadow-lg border-light">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white" style="background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);">
                     <h2 class="card-title mb-0">Your Registration History</h2>
                 </div>
                 <div class="card-body">
@@ -18,7 +18,8 @@
                                 <a href="{% url 'event_detail' registration.event.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                     <div>
                                         <h5 class="mb-1">{{ registration.event.title }}</h5>
-                                        <p class="mb-1 text-muted">Registered on: {{ registration.event.date|date:"F j, Y" }}</p>                                    </div>
+                                        <p class="mb-1 text-muted">Registered on: {{ registration.event.date|date:"F j, Y" }}</p>
+                                    </div>
                                     <div class="text-right">
                                         <p class="mb-0"><strong>{{ registration.name }}</strong></p>
                                         <small>{{ registration.email }}</small>
@@ -38,6 +39,11 @@
 
 {% block extra_css %}
 <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+    }
+
     .card {
         border-radius: 12px;
         overflow: hidden;
@@ -45,6 +51,8 @@
 
     .card-header {
         border-bottom: 1px solid #dee2e6;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
     }
 
     .list-group-item {
@@ -84,6 +92,41 @@
 
     .btn-secondary:hover {
         background-color: #495057;
+    }
+
+    /* New Styles */
+    .container {
+        padding: 2rem 0;
+    }
+
+    .text-right p {
+        color: #1a2a6c;
+    }
+
+    .text-right small {
+        color: #b21f1f;
+    }
+
+    .card-header h2 {
+        font-size: 1.75rem;
+        color: #fff;
+    }
+
+    .list-group-item h5 {
+        font-weight: 700;
+        color: #1a2a6c;
+    }
+
+    .list-group-item p {
+        color: #333;
+    }
+
+    .list-group-item:hover h5 {
+        color: #fdbb2d;
+    }
+
+    .list-group-item:hover p {
+        color: #b21f1f;
     }
 </style>
 {% endblock %}

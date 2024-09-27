@@ -92,7 +92,6 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -245,37 +244,42 @@ def registration_closed(request):
 def already_registered(request):
     return render(request, 'events/already_registered.html')
 
-
+from django.views.decorators.http import require_POST
 @login_required
+@require_POST
 def register_for_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
     # Check if registration period has started
     if timezone.now() < event.registration_start:
-        return redirect('registration_not_started')
+        return JsonResponse({'status': 'error', 'message': 'Registration has not started for this event yet.'})
 
     # Check if the user has already registered for this event
     if Registration.objects.filter(event=event, user=request.user).exists():
-        return redirect('already_registered')
+        return JsonResponse({'status': 'error', 'message': 'You have already registered for this event.'})
 
     # Check if event is full
     if event.is_full():
-        return redirect('registration_closed')
+        return JsonResponse({'status': 'error', 'message': 'Sorry, this event is fully booked.'})
 
     # Check if the current time is after the event start time
     current_time = timezone.now()
-    event_datetime = datetime.combine(event.date, event.time)
-    event_datetime = timezone.make_aware(event_datetime)
+    event_datetime = timezone.make_aware(timezone.datetime.combine(event.date, event.time))
     if current_time > event_datetime:
-        return redirect('registration_closed')
+        return JsonResponse({'status': 'error', 'message': 'Registration for this event is closed.'})
 
-    if request.method == 'POST':
-        form = EventRegistrationForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            token = generate_token()
+    form = EventRegistrationForm(request.POST)
+    form.fields['email'].initial = request.user.email
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        
+        # Check if email is already registered for this event
+        if Registration.objects.filter(event=event, email=email).exists():
+            return JsonResponse({'status': 'error', 'message': 'This email is already registered for this event.'})
 
+        try:
+            token = generate_token()  # Make sure you have this function defined in your utils.py
             registration = Registration.objects.create(
                 event=event,
                 user=request.user,
@@ -301,12 +305,18 @@ def register_for_event(request, event_id):
             email_message.content_subtype = 'html'  # Set the content type to HTML
             email_message.send(fail_silently=False)
 
-            return redirect('registration_detail', registration_id=registration.id)
+            # Generate the URL for the registration detail page
+            registration_detail_url = reverse('registration_detail', args=[registration.id])
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'You have successfully registered for the event.',
+                'redirect_url': registration_detail_url
+            })
+        except IntegrityError:
+            return JsonResponse({'status': 'error', 'message': 'An error occurred during registration. Please try again.'})
     else:
-        form = EventRegistrationForm()
-
-    return render(request, 'events/register_for_event.html', {'event': event, 'form': form})
-
+        return JsonResponse({'status': 'error', 'message': 'Invalid form data.', 'errors': form.errors})
 
 
 @login_required
@@ -572,10 +582,6 @@ def profile_view(request):
     }
     return render(request, 'events/profile.html', context)
 
-def create_event(request):
-    # Your view logic here
-    return render(request, 'events/create_event.html')
-
 @login_required
 def profile_edit(request):
     if request.method == 'POST':
@@ -594,7 +600,7 @@ def profile_edit(request):
         'user_form': user_form,
         'profile_form': profile_form
     }
-    return render(request, 'events/profile_edit.html', context)
+    return render(request, 'events/profile.html', context)
 
 from .models import CollegePoster
 

@@ -2,126 +2,277 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-lg-3 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-body text-center">
-                    <img src="{{ user.profile.image.url }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
-                    <h4 class="card-title">{{ user.username }}</h4>
-                    <p class="text-muted">{{ user.email }}</p>
-                    <a href="{% url 'custom_logout' %}" class="btn btn-outline-danger btn-sm mt-3">Logout</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Event Hub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+        .header {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            padding: 1rem 0;
+        }
+        .header h1 {
+            font-size: 2rem;
+        }
+        .header h2 {
+            font-size: 1.2rem;
+        }
+        .header p {
+            font-size: 1rem;
+        }
+        .nav-bar {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 0.5rem 0;
+        }
+        .nav-bar a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-bar a:hover {
+            color: #fdbb2d;
+        }
+        .profile-section {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+        }
+        .profile-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            height: 100%;
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a2a6c;
+        }
+        .profile-email {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .btn-logout {
+            background-color: #b21f1f;
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-logout:hover {
+            background-color: #8c1919;
+        }
+        .nav-pills .nav-link {
+            color: #1a2a6c;
+            font-weight: 500;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #1a2a6c;
+            color: #fff;
+        }
+        .tab-content {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .event-item {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .event-item:hover {
+            transform: translateY(-5px);
+        }
+        .event-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a2a6c;
+        }
+        .event-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+            margin-right: 0.5rem;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            margin-top: 2rem;
+        }
+        .footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .footer .social-icons a {
+            color: #ffffff;
+            margin: 0 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        .footer .social-icons a:hover {
+            color: #b4ae0b;
+        }
+    </style>
+</head>
+<body>
+    <header class="header text-center">
+        <h1 class="display-4">User Profile</h1>
+    </header>
+    {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
+            {% endfor %}
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    var messageContainer = document.getElementById('message-container');
+                    if (messageContainer) {
+                        messageContainer.style.display = 'none';
+                    }
+                }, 5000);
+            });
+        </script>
+    {% endif %}
 
-        <!-- Main Content -->
-        <div class="col-lg-9">
-            <div class="card border-0 shadow">
-                <div class="card-body">
-                    <ul class="nav nav-pills mb-4" id="profileTabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="overview-tab" data-toggle="pill" href="#overview" role="tab">Overview</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="events-tab" data-toggle="pill" href="#events" role="tab">My Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="settings-tab" data-toggle="pill" href="#settings" role="tab">Settings</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="profileTabsContent">
-                        <!-- Overview Tab -->
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                            <h5 class="mb-4">Profile Overview</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Username:</strong> {{ user.username }}</p>
-                                    <p><strong>Email:</strong> {{ user.email }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
-                                    <p><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y H:i" }}</p>
+    <div class="profile-section">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-lg-3 mb-4">
+                    <div class="profile-card text-center">
+                        <img src="{{ user.profile.image.url }}" class="profile-image" alt="Profile Picture">
+                        <h4 class="profile-name">{{ user.username }}</h4>
+                        <p class="profile-email">{{ user.email }}</p>
+                        <a href="{% url 'custom_logout' %}" class="btn btn-logout mt-3">Logout</a>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-lg-9">
+                    <div class="profile-card">
+                        <ul class="nav nav-pills mb-4" id="profileTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="overview-tab" data-bs-toggle="pill" href="#overview" role="tab">Overview</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="events-tab" data-bs-toggle="pill" href="#events" role="tab">My Events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="settings-tab" data-bs-toggle="pill" href="#settings" role="tab">Settings</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="profileTabsContent">
+                            <!-- Overview Tab -->
+                            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                                <h5 class="mb-4">Profile Overview</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Username:</strong> {{ user.username }}</p>
+                                        <p><strong>Email:</strong> {{ user.email }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+                                        <p><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y H:i" }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- My Events Tab -->
-                        <div class="tab-pane fade" id="events" role="tabpanel">
-                            <h5 class="mb-4">My Events</h5>
-                            {% if user.registration_set.exists %}
-                                <div class="list-group">
+                            <!-- My Events Tab -->
+                            <div class="tab-pane fade" id="events" role="tabpanel">
+                                <h5 class="mb-4">My Events</h5>
+                                {% if user.registration_set.exists %}
                                     {% for registration in user.registration_set.all %}
-                                        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1">{{ registration.event.title }}</h5>
-                                                <small>{{ registration.event.date|date:"F d, Y" }}</small>
+                                        <div class="event-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="event-title mb-0">{{ registration.event.title }}</h5>
+                                                <small class="event-date">{{ registration.event.date|date:"F d, Y" }}</small>
                                             </div>
                                             <p class="mb-1">{{ registration.event.description|truncatewords:20 }}</p>
-                                            <small><strong>Location:</strong> {{ registration.event.location }}</small>
+                                            <p><strong>Location:</strong> {{ registration.event.location }}</p>
                                             <div class="mt-2">
-                                                <span class="badge badge-primary">Token: {{ registration.token }}</span>
+                                                <span class="badge bg-primary">Token: {{ registration.token }}</span>
                                                 {% if registration.event.results_published %}
                                                     {% if registration.prize %}
-                                                        <span class="badge badge-success">Prize: {{ registration.prize }}</span>
+                                                        <span class="badge bg-success">Prize: {{ registration.prize }}</span>
                                                     {% else %}
-                                                        <span class="badge badge-secondary">No prize awarded</span>
+                                                        <span class="badge bg-secondary">No prize awarded</span>
                                                     {% endif %}
                                                 {% else %}
-                                                    <span class="badge badge-info">Results pending</span>
+                                                    <span class="badge bg-info">Results pending</span>
                                                 {% endif %}
                                             </div>
                                             <a href="{% url 'event_detail' registration.event.id %}" class="btn btn-outline-primary btn-sm mt-2">View Event</a>
                                         </div>
                                     {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted">You haven't registered for any events yet.</p>
-                            {% endif %}
-                            {% comment %} Add some debug output here {% endcomment %}
-                            {% for registration in user.registration_set.all %}
-                                <p>{{ registration.event.title }}</p>
-                            {% endfor %}
-                        </div>
+                                {% else %}
+                                    <p class="text-muted">You haven't registered for any events yet.</p>
+                                {% endif %}
+                            </div>
 
-                        <!-- Settings Tab -->
-                        <div class="tab-pane fade" id="settings" role="tabpanel">
-                            <h5 class="mb-4">Profile Settings</h5>
-                            <form method="post" action="{% url 'profile_edit' %}" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="image">Profile Image</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="image" name="image">
-                                        <label class="custom-file-label" for="image">Choose file</label>
+                            <!-- Settings Tab -->
+                            <div class="tab-pane fade" id="settings" role="tabpanel">
+                                <h5 class="mb-4">Profile Settings</h5>
+                                <form method="post" action="{% url 'profile_edit' %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}">
                                     </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="image" class="form-label">Profile Image</label>
+                                        <input type="file" class="form-control" id="image" name="image">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-    // Update custom file input label
-    $('.custom-file-input').on('change', function() {
-        let fileName = $(this).val().split('\\').pop();
-        $(this).next('.custom-file-label').addClass("selected").html(fileName);
-    });
-</script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
 {% endblock %}

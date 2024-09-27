@@ -1,14 +1,43 @@
+<!-- events/templates/events/error.html -->
 {% extends 'base.html' %}
 
 {% block title %}Error{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="alert alert-danger" role="alert">
-        <h1 class="alert-heading">Attention Required</h1>
+    <div class="alert alert-danger shadow-lg border-light" role="alert">
+        <h1 class="alert-heading" style="color: #b21f1f;">Attention Required</h1>
         <p class="mb-4">{{ message }}</p>
         <hr>
-        <a href="{% url 'event_list' %}" class="btn btn-outline-primary btn-lg mt-3">Return to Home</a>
+        <a href="{% url 'event_list' %}" class="btn btn-outline-primary btn-lg mt-3" style="border-color: #1a2a6c; color: #1a2a6c;">Return to Home</a>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .alert {
+        border-radius: 12px;
+    }
+
+    .alert h1 {
+        font-size: 1.75rem;
+        font-weight: bold;
+    }
+
+    .btn-outline-primary {
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #898e9f;
+        color: #ffffff;
+    }
+
+    /* New Styles */
+    .container {
+        padding: 2rem 0;
+    }
+</style>
 {% endblock %}

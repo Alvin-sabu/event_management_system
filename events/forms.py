@@ -87,7 +87,8 @@ class RegistrationForm(forms.ModelForm):
 
 class EventRegistrationForm(forms.Form):
     name = forms.CharField(max_length=100, label='Your Name')
-    email = forms.EmailField(label='Your Email')
+    email = forms.EmailField(label='Your Email', widget=forms.EmailInput(attrs={'readonly': 'readonly'}))
+    confirm_registration = forms.BooleanField(required=True, label='I confirm that I want to register for this event')
 
 class SignUpForm(UserCreationForm):
     class Meta:
@@ -129,10 +130,23 @@ class TeamMemberForm(forms.ModelForm):
         model = TeamMember
         fields = ['name', 'role', 'bio', 'image']
 
+from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
 class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
     class Meta:
         model = User
         fields = ['username', 'email']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        username = self.cleaned_data.get('username')
+        if email and User.objects.filter(email=email).exclude(username=username).exists():
+            raise ValidationError("This email address is already in use. Please use a different email address.")
+        return email
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
