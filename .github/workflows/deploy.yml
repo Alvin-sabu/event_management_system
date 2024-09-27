@@ -61,12 +61,12 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -i ec2_key.pem -T ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
           cd /home/ubuntu/event_management_system
-          sudo docker-compose exec web python manage.py migrate
+          sudo docker-compose exec -T web python manage.py migrate
         EOF
 
     - name: Health Check
       run: |
-        STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://{{ secrets.EC2_PUBLIC_IP }})
+        STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://$(echo ${{ secrets.EC2_PUBLIC_IP }}))
         if [ "$STATUS_CODE" -ne 200 ]; then
           echo "Health check failed, rolling back..."
           ssh -o StrictHostKeyChecking=no -i ec2_key.pem -T ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
