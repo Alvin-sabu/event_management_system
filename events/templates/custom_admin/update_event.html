@@ -6,6 +6,8 @@
     <title>Update Event: {{ event.title }}</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Quill CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
@@ -38,6 +40,9 @@
         footer {
             background-color: #e9ecef;
         }
+        #editor {
+            height: 300px;
+        }
     </style>
 </head>
 <body>
@@ -50,14 +55,19 @@
     <main class="container py-5">
         <div class="bg-white rounded-lg shadow-lg p-4 p-md-5">
             <h2 class="h3 mb-4">Updating: {{ event.title }}</h2>
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="updateEventForm">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        <div class="form-control-wrapper">
-                            {{ field|safe }}
-                        </div>
+                        {% if field.name == 'description' %}
+                            <div id="editor">{{ field.value|safe }}</div>
+                            <input type="hidden" name="{{ field.name }}" id="id_description">
+                        {% else %}
+                            <div class="form-control-wrapper">
+                                {{ field|safe }}
+                            </div>
+                        {% endif %}
                         {% if field.help_text %}
                             <small class="form-text text-muted">{{ field.help_text|safe }}</small>
                         {% endif %}
@@ -82,11 +92,41 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         // Add dynamic current year to footer
         document.addEventListener('DOMContentLoaded', function() {
             const year = new Date().getFullYear();
             document.getElementById('current-year').textContent = year;
+
+            // Initialize Quill editor
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video']
+                    ]
+                }
+            });
+
+            // Update hidden input with Quill content before form submission
+            var form = document.getElementById('updateEventForm');
+            form.onsubmit = function() {
+                var description = document.querySelector('input[name=description]');
+                description.value = quill.root.innerHTML;
+            };
         });
     </script>
 </body>

@@ -28,20 +28,55 @@
             padding: 3rem 0;
             background-color: #f8f9fa;
         }
+        .news-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
         .news-image {
-            max-width: 100%;
+            width: 100%;
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            object-fit: cover;
+            max-height: 400px;
         }
         .news-meta {
             font-size: 0.9rem;
             color: #6c757d;
             margin-bottom: 1rem;
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .news-meta span {
+            margin-right: 1rem;
         }
         .news-content {
             font-size: 1.1rem;
             line-height: 1.8;
+        }
+        .news-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+        }
+        .news-content h1, .news-content h2, .news-content h3, .news-content h4, .news-content h5, .news-content h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .news-content ul, .news-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        .news-content blockquote {
+            border-left: 4px solid #1a2a6c;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #6c757d;
         }
         .btn-back {
             background-color: #1a2a6c;
@@ -73,6 +108,16 @@
             color: #fff;
             padding: 1rem 0;
         }
+        .related-news .card {
+            transition: transform 0.3s ease;
+        }
+        .related-news .card:hover {
+            transform: translateY(-5px);
+        }
+        .related-news .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
@@ -98,65 +143,79 @@
     <!-- News Detail Section -->
     <section class="news-detail">
         <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                </ol>
-            </nav>
-            
-            <h1 class="mb-4">{{ news_item.title }}</h1>
-            
-            <div class="news-meta">
-                <span><i class="fas fa-calendar-alt"></i> {{ news_item.publication_date|date:"F d, Y" }}</span>
-                <span class="ms-3"><i class="fas fa-user"></i> {{ news_item.author }}</span>
-                <span class="ms-3"><i class="fas fa-folder"></i> {{ news_item.category }}</span>
-            </div>
-            
-            {% if news_item.image %}
-                <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="img-fluid news-image mb-4">
-            {% endif %}
-            
-            <div class="news-content">
-                {{ news_item.content|safe }}
-            </div>
-            
-            <div class="mt-4">
-                <a href="{% url 'index' %}" class="btn btn-back text-white">
-                    <i class="fas fa-arrow-left"></i> Home
-                </a>
-            </div>
-            
-            <div class="share-buttons">
-                <h5>Share this article:</h5>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="facebook">
-                    <i class="fab fa-facebook-f"></i> Facebook
-                </a>
-                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ news_item.title }}" target="_blank" class="twitter">
-                    <i class="fab fa-twitter"></i> Twitter
-                </a>
-                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ news_item.title }}" target="_blank" class="linkedin">
-                    <i class="fab fa-linkedin-in"></i> LinkedIn
-                </a>
+            <div class="news-container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ news_item.title }}</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-4">{{ news_item.title }}</h1>
+                
+                <div class="news-meta">
+                    <span><i class="fas fa-calendar-alt"></i> {{ news_item.publication_date|date:"F d, Y" }}</span>
+                    {% if news_item.author %}
+                        <span><i class="fas fa-user"></i> {{ news_item.author }}</span>
+                    {% endif %}
+                    {% if news_item.category %}
+                        <span><i class="fas fa-folder"></i> {{ news_item.category }}</span>
+                    {% endif %}
+                </div>
+                
+                {% if news_item.image %}
+                    <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="img-fluid news-image">
+                {% endif %}
+                
+                <div class="news-content">
+                    {{ news_item.content|safe }}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'index' %}" class="btn btn-back text-white">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+                
+                <div class="share-buttons">
+                    <h5>Share this article:</h5>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ news_item.title }}" target="_blank" class="twitter">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ news_item.title }}" target="_blank" class="linkedin">
+                        <i class="fab fa-linkedin-in"></i> LinkedIn
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Related News Section -->
-    <section class="related-news py-5">
+    <section class="related-news py-5 bg-light">
         <div class="container">
             <h2 class="mb-4">Related News</h2>
             <div class="row">
                 {% for related_news in related_news_items %}
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100">
+                        <div class="card h-100 shadow-sm">
                             {% if related_news.image %}
                                 <img src="{{ related_news.image.url }}" class="card-img-top" alt="{{ related_news.title }}">
                             {% endif %}
                             <div class="card-body">
                                 <h5 class="card-title">{{ related_news.title }}</h5>
-                                <p class="card-text">{{ related_news.content|truncatewords:20 }}</p>
+                                <p class="card-text">{{ related_news.content|striptags|truncatewords:20 }}</p>
+                            </div>
+                            <div class="card-footer bg-white border-0">
                                 <a href="{% url 'news_detail' related_news.id %}" class="btn btn-primary">Read More</a>
                             </div>
                         </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p>No related news articles at this time.</p>
                     </div>
                 {% endfor %}
             </div>

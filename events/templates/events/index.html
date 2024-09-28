@@ -138,6 +138,29 @@
             font-size: 0.8rem;
             padding: 0.3rem 0.6rem;
         }
+        /* Styling for the "Read More" button */
+        .news-section .btn-primary {
+            background-color: #546372; /* Primary blue background */
+            color: white; /* White text */
+            font-size: 0.8rem; /* Slightly smaller font */
+            padding: 0.4rem 0.8rem; /* Padding for the button */
+            border-radius: 0.25rem; /* Slight rounding of corners */
+            border: none; /* Remove default border */
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover transition */
+        }
+
+        .news-section .btn-primary:hover {
+            background-color: #cf7209; /* Darker blue on hover */
+            color: white; /* Keep text white on hover */
+            text-decoration: none; /* Remove any underline */
+        }
+
+        /* Adjusting margin and alignment for the button */
+        .news-section .card-footer {
+            text-align: center; /* Center the button in the footer */
+            margin-top: 0.5rem;
+        }
+
         .footer {
             background-color: #333;
             color: #fff;
@@ -454,25 +477,33 @@
     </div>
 </section>
 
-<section class="news-section">
+<section class="news-section py-5 bg-light">
     <div class="container">
         <h2 class="text-center mb-4">Latest News</h2>
         <div class="row">
             {% for news_item in news_items %}
-                <div class="col-md-4 mb-3">
-                    <div class="news-item">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm news-item">
                         {% if news_item.image %}
-                            <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="news-image">
+                            <img src="{{ news_item.image.url }}" alt="{{ news_item.title }}" class="card-img-top news-image">
                         {% else %}
-                            <img src="/static/default-image.jpg" alt="No Image Available" class="news-image">
+                            <img src="{% static 'images/default-news-image.jpg' %}" alt="No Image Available" class="card-img-top news-image">
                         {% endif %}
-                        <p class="news-date">{{ news_item.publication_date|date:"F d, Y" }}</p>
-                        <h3 class="news-title">{{ news_item.title }}</h3>
-                        <div class="news-excerpt">
-                            <p>{{ news_item.content|truncatewords:20 }}</p>
+                        <div class="card-body">
+                            <p class="text-muted mb-1"><small><i class="fas fa-calendar-alt"></i> {{ news_item.publication_date|date:"F d, Y" }}</small></p>
+                            <h5 class="card-title news-title">{{ news_item.title }}</h5>
+                            <div class="card-text news-excerpt">
+                                {{ news_item.content|striptags|truncatewords:20 }}
+                            </div>
                         </div>
-                        <a href="{% url 'news_detail' news_item.id %}" class="btn btn-primary btn-sm btn-read-more">Read More</a>
+                        <div class="card-footer bg-white border-0">
+                            <a href="{% url 'news_detail' news_item.id %}" class="btn btn-primary btn-sm">Read More</a>
+                        </div>
                     </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-center">No news articles available at this time.</p>
                 </div>
             {% endfor %}
         </div>

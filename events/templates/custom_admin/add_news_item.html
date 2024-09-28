@@ -4,41 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add News Item</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+            border: 1px solid #ced4da;
+        }
+        .btn {
+            border-radius: 0.25rem;
+        }
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            background-color: #28a745;
+            color: white;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        #editor {
+            height: 300px;
+        }
+    </style>
 </head>
 <body>
-
-<!-- Content -->
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Add News Item</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        <!-- CSRF Token -->
-                        {% csrf_token %}
-                        <!-- Render Form -->
-                        {{ form.as_p }}
-                        <!-- Buttons -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success">Save</button>
-                            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary ms-2">Back to Dashboard</a>
-                        </div>
-                    </form>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h2 class="mb-0"><i class="fas fa-newspaper me-2"></i>Add News Item</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" id="addNewsForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="id_title" class="form-label">
+                                    <i class="fas fa-heading me-2"></i>Title
+                                </label>
+                                <input type="text" class="form-control" id="id_title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editor" class="form-label">
+                                    <i class="fas fa-align-left me-2"></i>Content
+                                </label>
+                                <div id="editor"></div>
+                                <input type="hidden" name="content" id="hiddenContent">
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_image" class="form-label">
+                                    <i class="fas fa-image me-2"></i>Image
+                                </label>
+                                <input type="file" class="form-control" id="id_image" name="image" accept="image/*">
+                            </div>
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-plus-circle me-2"></i>Add News Item
+                                </button>
+                                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('addNewsForm');
 
+            // Initialize Quill editor
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Update hidden input with Quill content
+                document.getElementById('hiddenContent').value = quill.root.innerHTML;
+                
+                Swal.fire({
+                    title: 'Adding News Item',
+                    text: 'Please wait...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                this.submit();
+            });
+        });
+    </script>
 </body>
 </html>
