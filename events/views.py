@@ -75,9 +75,7 @@ def index(request):
           # Pass event photos to the template
     })
 
-from django.shortcuts import render
-from django.utils import timezone
-from .utils import get_weather  # Import the weather function
+# Import the weather function
 
 # def index(request):
 #     login_form = AuthenticationForm()
