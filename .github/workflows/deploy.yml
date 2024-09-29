@@ -1,52 +1,48 @@
-# Name of the workflow
 name: Deploy Django to EC2
 
-# Define when this workflow will run
 on:
   push:
     branches:
-      - main  # Run on pushes to the main branch
+      - main
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight UTC (fixed cron syntax)
+    - cron: '0 0 * * *'  # Daily at midnight UTC
 
-# Define the jobs in the workflow
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
     steps:
-    # Step 1: Check out the repository code
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Set up Python environment
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # Use the latest Python 3 version
+        python-version: '3.10'
 
-    # Step 3: Set up SSH for EC2 access
-    - name: Set up SSH for EC2 access
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: alvinksabu/django-app:latest
+
+    - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    # Step 4: Add EC2 host to known hosts to avoid SSH prompt
-    - name: Add EC2 Host to Known Hosts
-      run: |
-        ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+    - name: Add EC2 host to known hosts
+      run: ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
-    # Step 5: Build Docker image
-    - name: Build Docker Image
-      run: |
-        DOCKER_BUILDKIT=1 docker build -t alvinksabu/django-app:latest .
-
-    # Step 6: Push Docker image to Docker Hub
-    - name: Push Docker Image to Docker Hub
-      run: |
-        echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-        docker push alvinksabu/django-app:latest
-
-    # Step 7: Deploy to EC2
     - name: Deploy to EC2
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
@@ -72,28 +68,48 @@ jobs:
           sudo docker-compose up -d
         '
 
-    # Step 8: Run Django migrations
-    - name: Run Django Migrations
+    - name: Verify module installations
+      run: |
+        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
+          cd /home/ubuntu/event_management_system &&
+          echo "Installed Python packages:" &&
+          sudo docker-compose exec -T web pip list &&
+          echo "Verifying key modules:" &&
+          for module in requests Django psycopg2 boto3 pillow weasyprint; do
+            sudo docker-compose exec -T web python -c "import $module; print(f\"$module version: {$module.__version__}\")"
+          done
+        '
+
+    - name: Run Django migrations
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
           cd /home/ubuntu/event_management_system &&
           sudo docker-compose exec -T web python manage.py migrate
         '
 
-    # Step 9: Perform health check and rollback if necessary
-    - name: Health Check
+    - name: Collect static files
       run: |
-        STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://${{ secrets.EC2_PUBLIC_IP }})
-        echo "Received status code: $STATUS_CODE"
-        if [ "$STATUS_CODE" -ne 200 ]; then
-          echo "Health check failed, rolling back..."
-          ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-            cd /home/ubuntu/event_management_system &&
-            sudo docker-compose down &&
-            sudo docker pull alvinksabu/django-app:previous &&
-            sudo docker-compose up -d
-          '
-          exit 1
+        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
+          cd /home/ubuntu/event_management_system &&
+          sudo docker-compose exec -T web python manage.py collectstatic --noinput
+        '
+
+    - name: Health check
+      run: |
+        response=$(curl -sS -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }})
+        if [ $response = "200" ]; then
+          echo "Deployment successful, site is up!"
         else
-          echo "Deployment successful."
+          echo "Site is not responding with 200 OK. Got response code: $response"
+          exit 1
         fi
+
+    - name: Rollback on failure
+      if: failure()
+      run: |
+        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
+          cd /home/ubuntu/event_management_system &&
+          sudo docker-compose down &&
+          sudo docker pull alvinksabu/django-app:previous &&
+          sudo docker-compose up -d
+        '
