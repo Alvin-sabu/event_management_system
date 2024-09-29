@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
+    - cron: '0 0 * * *' # Daily backup at midnight UTC
 
 jobs:
   deploy:
@@ -17,99 +17,58 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.10'
+        python-version: '3.x'
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: alvinksabu/django-app:latest
-
-    - name: Set up SSH
+    - name: Set up SSH for EC2 access
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Add EC2 host to known hosts
-      run: ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
-
+    - name: Add EC2 Host to Known Hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+    - name: Build Docker Image
+      run: |
+        DOCKER_BUILDKIT=1 docker build -t alvinksabu/django-app:latest .
+    - name: Push Docker Image to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+        docker push alvinksabu/django-app:latest
     - name: Deploy to EC2
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-          # Update packages
           sudo apt-get update &&
-          # Install Docker if not present
           if ! command -v docker &> /dev/null; then
             sudo apt-get install -y docker.io docker-compose &&
             sudo systemctl start docker &&
             sudo systemctl enable docker
           fi &&
-          # Navigate to project directory
           cd /home/ubuntu/event_management_system &&
-          # Clean git repository
           git clean -f &&
-          # Pull latest changes
           git pull origin main &&
-          # Stop running containers
           sudo docker-compose down &&
-          # Pull latest images
           sudo docker-compose pull &&
-          # Start containers
           sudo docker-compose up -d
         '
-
-    - name: Verify module installations
-      run: |
-        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-          cd /home/ubuntu/event_management_system &&
-          echo "Installed Python packages:" &&
-          sudo docker-compose exec -T web pip list &&
-          echo "Verifying key modules:" &&
-          for module in requests Django psycopg2 boto3 pillow weasyprint; do
-            sudo docker-compose exec -T web python -c "import $module; print(f\"$module version: {$module.__version__}\")"
-          done
-        '
-
-    - name: Run Django migrations
+    - name: Run Django Migrations
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
           cd /home/ubuntu/event_management_system &&
           sudo docker-compose exec -T web python manage.py migrate
         '
-
-    - name: Collect static files
+    - name: Health Check
       run: |
-        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-          cd /home/ubuntu/event_management_system &&
-          sudo docker-compose exec -T web python manage.py collectstatic --noinput
-        '
-
-    - name: Health check
-      run: |
-        response=$(curl -sS -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_PUBLIC_IP }})
-        if [ $response = "200" ]; then
-          echo "Deployment successful, site is up!"
-        else
-          echo "Site is not responding with 200 OK. Got response code: $response"
+        STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://${{ secrets.EC2_PUBLIC_IP }})
+        echo "Received status code: $STATUS_CODE"
+        if [ "$STATUS_CODE" -ne 200 ]; then
+          echo "Health check failed, rolling back..."
+          ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
+            cd /home/ubuntu/event_management_system &&
+            sudo docker-compose down &&
+            sudo docker pull alvinksabu/django-app:previous &&
+            sudo docker-compose up -d
+          '
           exit 1
+        else
+          echo "Deployment successful."
         fi
-
-    - name: Rollback on failure
-      if: failure()
-      run: |
-        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-          cd /home/ubuntu/event_management_system &&
-          sudo docker-compose down &&
-          sudo docker pull alvinksabu/django-app:previous &&
-          sudo docker-compose up -d
-        '
