@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Install necessary packages
+# Install necessary system packages
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
