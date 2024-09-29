@@ -1,59 +1,78 @@
+# Name of the workflow
 name: Deploy Django to EC2
 
+# Define when this workflow will run
 on:
   push:
     branches:
-      - main
+      - main  # Run on pushes to the main branch
   schedule:
-    - cron: '0 0 * * *' # Daily backup at midnight UTC
+    - cron: '0 0 * * *'  # Run daily at midnight UTC (fixed cron syntax)
 
+# Define the jobs in the workflow
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
     steps:
+    # Step 1: Check out the repository code
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Step 2: Set up Python environment
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.x'  # Use the latest Python 3 version
 
+    # Step 3: Set up SSH for EC2 access
     - name: Set up SSH for EC2 access
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+    # Step 4: Add EC2 host to known hosts to avoid SSH prompt
     - name: Add EC2 Host to Known Hosts
       run: |
         ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
+    # Step 5: Build Docker image
     - name: Build Docker Image
       run: |
         DOCKER_BUILDKIT=1 docker build -t alvinksabu/django-app:latest .
 
+    # Step 6: Push Docker image to Docker Hub
     - name: Push Docker Image to Docker Hub
       run: |
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
         docker push alvinksabu/django-app:latest
 
+    # Step 7: Deploy to EC2
     - name: Deploy to EC2
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
+          # Update packages
           sudo apt-get update &&
+          # Install Docker if not present
           if ! command -v docker &> /dev/null; then
             sudo apt-get install -y docker.io docker-compose &&
             sudo systemctl start docker &&
             sudo systemctl enable docker
           fi &&
+          # Navigate to project directory
           cd /home/ubuntu/event_management_system &&
+          # Clean git repository
           git clean -f &&
+          # Pull latest changes
           git pull origin main &&
+          # Stop running containers
           sudo docker-compose down &&
+          # Pull latest images
           sudo docker-compose pull &&
+          # Start containers
           sudo docker-compose up -d
         '
 
+    # Step 8: Run Django migrations
     - name: Run Django Migrations
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
@@ -61,6 +80,7 @@ jobs:
           sudo docker-compose exec -T web python manage.py migrate
         '
 
+    # Step 9: Perform health check and rollback if necessary
     - name: Health Check
       run: |
         STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://${{ secrets.EC2_PUBLIC_IP }})
