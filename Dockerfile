@@ -10,18 +10,13 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/app
 
 # Copy the requirements file
-COPY ./requirements.txt /usr/src/app/requirements.txt
+COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && pip install gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /usr/src/app
+COPY . .
 
 # Specify the command to run on container start
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "event_management_system.wsgi:application"]
-
-# Health check (optional)
-HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
