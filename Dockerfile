@@ -22,3 +22,6 @@ COPY . /usr/src/app
 
 # Specify the command to run on container start
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "event_management_system.wsgi:application"]
+
+# Health check (optional)
+HEALTHCHECK CMD curl --fail http://localhost:8000/ || exit 1
