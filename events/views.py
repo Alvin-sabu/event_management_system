@@ -50,35 +50,6 @@ from .utils import admin_required, send_prize_notification_emails
 from django.contrib.admin.views.decorators import staff_member_required
 
 
-# def index(request):
-#     login_form = AuthenticationForm()
-#     signup_form = SignUpForm()
-#     videos = FrontPageVideo.objects.all()  # Assuming FrontPageVideo is your model
-    
-#     # Fetch the latest news items using created_at field
-#     news_items = NewsItem.objects.all().order_by('-created_at')[:3]  # Get the 3 most recent news items
-
-#     # Fetch all event photos
-#     event_photos = EventPhoto.objects.all()  # Assuming EventPhoto is your model
-#     upcoming_fest = Fest.objects.filter(start_date__gt=timezone.now()).order_by('start_date').first()
-#     all_events = Event.objects.all().order_by('date')
-
-#     return render(request, 'index.html', {
-#         'login_form': login_form,
-#         'signup_form': signup_form,
-#         'videos': videos,
-#         'news_items': news_items,
-#         'event_photos': event_photos,
-#         'upcoming_fest': upcoming_fest, 
-#         'all_events': all_events, 
-#         'events': all_events,
-#           # Pass event photos to the template
-#     })
-
-from django.shortcuts import render
-from django.utils import timezone
-from .utils import get_weather  # Import the weather function
-
 def index(request):
     login_form = AuthenticationForm()
     signup_form = SignUpForm()
@@ -89,16 +60,8 @@ def index(request):
 
     # Fetch all event photos
     event_photos = EventPhoto.objects.all()  # Assuming EventPhoto is your model
-
-    # Get the upcoming fest
     upcoming_fest = Fest.objects.filter(start_date__gt=timezone.now()).order_by('start_date').first()
-    
-    # Fetch all events
     all_events = Event.objects.all().order_by('date')
-
-    # Get weather data for the college city
-    city = 'elappara'  # Replace with your actual city name
-    weather = get_weather(city)
 
     return render(request, 'index.html', {
         'login_form': login_form,
@@ -106,10 +69,47 @@ def index(request):
         'videos': videos,
         'news_items': news_items,
         'event_photos': event_photos,
-        'upcoming_fest': upcoming_fest,
-        'all_events': all_events,
-        'weather': weather,  # Pass weather data to the template
+        'upcoming_fest': upcoming_fest, 
+        'all_events': all_events, 
+        'events': all_events,
+          # Pass event photos to the template
     })
+
+from django.shortcuts import render
+from django.utils import timezone
+from .utils import get_weather  # Import the weather function
+
+# def index(request):
+#     login_form = AuthenticationForm()
+#     signup_form = SignUpForm()
+#     videos = FrontPageVideo.objects.all()  # Assuming FrontPageVideo is your model
+    
+#     # Fetch the latest news items using created_at field
+#     news_items = NewsItem.objects.all().order_by('-created_at')[:3]  # Get the 3 most recent news items
+
+#     # Fetch all event photos
+#     event_photos = EventPhoto.objects.all()  # Assuming EventPhoto is your model
+
+#     # Get the upcoming fest
+#     upcoming_fest = Fest.objects.filter(start_date__gt=timezone.now()).order_by('start_date').first()
+    
+#     # Fetch all events
+#     all_events = Event.objects.all().order_by('date')
+
+#     # Get weather data for the college city
+#     city = 'elappara'  # Replace with your actual city name
+#     weather = get_weather(city)
+
+#     return render(request, 'index.html', {
+#         'login_form': login_form,
+#         'signup_form': signup_form,
+#         'videos': videos,
+#         'news_items': news_items,
+#         'event_photos': event_photos,
+#         'upcoming_fest': upcoming_fest,
+#         'all_events': all_events,
+#         'weather': weather,  # Pass weather data to the template
+#     })
 
 def signup(request):
     if request.method == 'POST':

@@ -38,25 +38,7 @@
             font-size: 1rem;
             margin-bottom: 0;
         }
-        .weather-widget {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            max-width: 200px;
-        }
-        .weather-widget h2 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        .weather-widget p {
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-        .weather-widget img {
-            width: 50px;
-            height: 50px;
-        }
+        
         .header {
             background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
             color: #fff;
@@ -422,16 +404,6 @@
                     <h1>Event Hub</h1>
                     <h2>Marian College Kuttikkanam</h2>
                     <p>Empowering Students for a Brighter Future</p>
-                </div>
-                <div class="weather-widget">
-                    {% if weather %}
-                        <h2>Weather in Kuttikkanam</h2>
-                        <p>{{ weather.temperature }}°C</p>
-                        <p>{{ weather.description }}</p>
-                        <img src="https://www.weatherbit.io/static/img/icons/{{ weather.icon }}.png" alt="Weather icon">
-                    {% else %}
-                        <p>Weather data unavailable</p>
-                    {% endif %}
                 </div>
             </div>
         </div>
