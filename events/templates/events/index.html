@@ -194,6 +194,41 @@
             padding: 1rem 0;
             font-size: 0.8rem;
         }
+        .event-photos-section h2 {
+            margin-bottom: 30px; /* Adds space between the heading and the photos */
+        }
+        .event-photos-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; /* Makes sure images wrap on smaller screens */
+            gap: 15px; /* Adds space between the photos */
+        }
+
+        .event-photo {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover; /* Ensures the image covers its box without distortion */
+            border-radius: 10px; /* Optional: adds rounded corners to the images */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for visual depth */
+            transition: transform 0.3s ease-in-out; /* Adds hover effect */
+        }
+
+        .event-photo.active {
+            border: 2px solid #1a2a6c; /* Highlight for active photo */
+        }
+
+        .event-photo:hover {
+            transform: scale(1.05); /* Slight zoom effect on hover */
+        }
+
+        /* Ensures proper scaling of the images on smaller screens */
+        @media (max-width: 768px) {
+            .event-photo {
+                width: 100%;
+                height: auto;
+            }
+        }
         .event-photos-section {
             position: relative;
             width: 100%;
@@ -497,8 +532,7 @@
     </div>
 </section>
 <section class="event-photos-section">
-    <h2 class="text-center mb-4">Event Highlights</h2>
-    <div class="event-photos-container">
+    <div class="event-photos-container d-flex justify-content-center flex-wrap">
         {% if event_photos %}
             {% for photo in event_photos %}
             <img src="{{ photo.photo.url }}" alt="{{ photo.description }}" class="event-photo {% if forloop.first %}active{% endif %}">
@@ -508,6 +542,7 @@
         {% endif %}
     </div>
 </section>
+
 
 <section class="news-section py-5 bg-light">
     <div class="container">
@@ -601,14 +636,14 @@
 
         // New code for the scrolling event bar
         const eventBarContainer = document.querySelector('.event-bar-container');
-            const eventBarWidth = eventBarContainer.scrollWidth;
-            const animationDuration = eventBarWidth / 50; // Adjust speed as needed
+        const eventBarWidth = eventBarContainer.scrollWidth;
+        const animationDuration = eventBarWidth / 500; // Adjust speed as needed
 
-            eventBarContainer.style.animationDuration = `${animationDuration}s`;
+        eventBarContainer.style.animationDuration = `${animationDuration}s`;
 
-            // Clone event items to ensure continuous scrolling
-            const eventItems = eventBarContainer.innerHTML;
-            eventBarContainer.innerHTML += eventItems;
+        // Clone event items to ensure continuous scrolling
+        const eventItems = eventBarContainer.innerHTML;
+        eventBarContainer.innerHTML += eventItems;
 
         // Event photos functionality
         let currentPhotoIndex = 0;
@@ -633,6 +668,7 @@
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = countDownDate - now;
+
             console.log("Current time:", new Date(now));
             console.log("Time difference (ms):", distance);
 
@@ -640,8 +676,8 @@
                 // The fest has started or is in the past
                 console.log("Fest has started or is in the past");
                 clearInterval(countdownInterval);
-                document.getElementById("countdown").style.display = "none";
-                document.getElementById("fest-live").style.display = "block";
+                document.getElementById("countdown").style.display = "none"; // Optionally hide countdown
+                document.getElementById("fest-live").style.display = "block"; // Show the live message
             } else {
                 // The fest is still in the future
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -661,11 +697,12 @@
         // Run the function immediately and then every second
         updateCountdown();
         const countdownInterval = setInterval(updateCountdown, 1000);
-    {% else %}
-        console.log("No upcoming fest found");
-    {% endif %}
-});
+        {% else %}
+            console.log("No upcoming fest found");
+        {% endif %}
+    });
 </script>
+
 
 </body>
 </html>

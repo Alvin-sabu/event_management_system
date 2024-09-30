@@ -95,11 +95,15 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     .event-title {
-        font-size: 1.2rem;
-        font-weight: 500;
-        color: #1a2a6c;
-        margin-bottom: 5px;
+    font-size: 1.4rem; /* Increased size for better visibility */
+    font-weight: 600;  /* Bolder weight for emphasis */
+    color: #1a2a6c;    /* Retained original color */
+    margin-bottom: 10px; /* Added more space for better separation */
+    text-transform: uppercase; /* Makes the title uppercase */
+    letter-spacing: 0.5px; /* Adds slight spacing between letters */
+    font-family: 'Roboto', sans-serif; /* Example font for a modern look */
     }
+
     .event-date {
         font-size: 0.9rem;
         color: #6c757d;
@@ -207,6 +211,13 @@
         background-color: #b21f1f;
         color: #fff;
     }
+    .department-name {
+    color: #1a2a6c; 
+    font-family: 'Georgia', serif; /* Custom font */
+    font-size: 14px; /* Font size */
+    font-weight: bold; /* Optional: make it bold */
+    }
+    
 
     @media (max-width: 1024px) {
         .dashboard-container {
@@ -245,6 +256,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h3 class="event-title">{{ event.title }}</h3>
+                            <h3 class="department-name">In collaboration with {{event.department.name}}</h3>
                             <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
                             <p class="event-date">Registration Starts: {{ event.registration_start|date:"F j, Y, g:i a" }}</p>
                         </div>
@@ -266,7 +278,8 @@
                 <div class="event-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h3 class="event-title">{{ event.title }}</h3>
+                            <h3 class="event-title">{{ event.title }} </h3>
+                            <h3 class="department-name">In collaboration with {{event.department.name}}</h3>
                             <p class="event-date">{{ event.date|date:"F j, Y" }}</p>
                         </div>
                         <a href="{% url 'event_detail' event.id %}" class="btn btn-info">View Details</a>
