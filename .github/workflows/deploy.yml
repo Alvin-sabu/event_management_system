@@ -27,16 +27,13 @@ jobs:
     - name: Add EC2 Host to Known Hosts
       run: |
         ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
-
     - name: Build Docker Image
       run: |
         DOCKER_BUILDKIT=1 docker build -t alvinksabu/django-app:latest .
-
     - name: Push Docker Image to Docker Hub
       run: |
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
         docker push alvinksabu/django-app:latest
-
     - name: Deploy to EC2
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
@@ -49,25 +46,16 @@ jobs:
           cd /home/ubuntu/event_management_system &&
           git clean -f &&
           git pull origin main &&
-          sudo docker-compose down || true &&
+          sudo docker-compose down &&
           sudo docker-compose pull &&
           sudo docker-compose up -d
         '
-
-    - name: Collect Static Files
-      run: |
-        ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
-          cd /home/ubuntu/event_management_system &&
-          sudo docker-compose exec -T web python manage.py collectstatic --noinput
-        '
-
     - name: Run Django Migrations
       run: |
         ssh ubuntu@${{ secrets.EC2_PUBLIC_IP }} '
           cd /home/ubuntu/event_management_system &&
           sudo docker-compose exec -T web python manage.py migrate
         '
-
     - name: Health Check
       run: |
         STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://${{ secrets.EC2_PUBLIC_IP }})
