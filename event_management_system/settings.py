@@ -67,24 +67,17 @@ WSGI_APPLICATION = 'event_management_system.wsgi.application'
 from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env
 
-POSTGRES_DB = os.getenv('POSTGRES_DB')
-POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'eventhub_database',
-#         'USER': 'alvinroot',
-#         'PASSWORD': 'Alvin200115',
-#         'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
-#         'PORT': '5432',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'eventhub_database',
+        'USER': 'alvinroot',
+        'PASSWORD': 'Alvin200115',
+        'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
+        'PORT': '5432',
+    }
+}
 
 DATABASES = {
     'default': {
