@@ -1,3 +1,4 @@
+version: '3'
 
 services:
   db:
@@ -5,9 +6,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: eventhub_database
-      POSTGRES_USER: alvinroot
-      POSTGRES_PASSWORD: Alvin200115
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
       - app-network
 
@@ -21,10 +22,12 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgres://alvinroot:Alvin200115@db:5432/eventhub_database
-      - AWS_ACCESS_KEY_ID=AKIAQPHJMQZMHM5IM7J2
-      - AWS_SECRET_ACCESS_KEY=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
-      - AWS_STORAGE_BUCKET_NAME=eventhub-storage
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     networks:
       - app-network
 

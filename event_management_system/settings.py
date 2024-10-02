@@ -1,5 +1,7 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,14 +62,38 @@ WSGI_APPLICATION = 'event_management_system.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env
+
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'eventhub_database',
+#         'USER': 'alvinroot',
+#         'PASSWORD': 'Alvin200115',
+#         'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eventhub_database',
-        'USER': 'alvinroot',
-        'PASSWORD': 'Alvin200115',
-        'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST',),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -134,11 +160,12 @@ USE_TZ = True  # Enable timezone-aware datetime handling
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # AWS settings
-AWS_ACCESS_KEY_ID = 'AKIAQPHJMQZMHM5IM7J2'
-AWS_SECRET_ACCESS_KEY = 'BStS5Ga1VYf/gygrOzXXOjtPxLyfAB9Eet9bGZi1'
-AWS_STORAGE_BUCKET_NAME = 'eventhub-storage'
-AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')  # e.g., 'us-east-1'
+AWS_S3_SIGNATURE_VERSION = os.getenv('AWS_S3_SIGNATURE_VERSION')
+
 
 # S3 bucket configuration
 AWS_S3_CUSTOM_DOMAIN = f'eventhub-storage.s3.amazonaws.com'
@@ -160,10 +187,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email settings
+import os
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'alvinksabu200115@gmail.com'
-EMAIL_HOST_PASSWORD = 'ceoj dbha miri hkdw'
-DEFAULT_FROM_EMAIL = 'alvinksabu200115@gmail.com'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Fetch from .env
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Fetch from .env
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')  # Default from email
+
