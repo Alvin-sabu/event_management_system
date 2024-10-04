@@ -53,24 +53,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'event_management_system.wsgi.application'
 
+from decouple import config
+
 # Database settings
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eventhub_database',
-        'USER': 'alvinroot',
-        'PASSWORD': 'Alvin200115',
-        'HOST': 'eventhub-database.czsgiywaiemw.eu-north-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('POSTGRES_HOST'),
+        'PORT': config('POSTGRES_PORT'),
     }
 }
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -94,57 +89,20 @@ USE_I18N = True  # Enable Django's internationalization system
 USE_TZ = True  # Enable timezone-aware datetime handling
 
 
-# # Static files (CSS, JavaScript, Images)
-# # Use S3 for static files in production
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-# # S3 bucket for static files
-# AWS_STATIC_CUSTOM_DOMAIN = 'eventhub-static.s3.amazonaws.com'  # Ensure the bucket name is 'eventhub-static' for static files
-# STATIC_URL = f'https://{AWS_STATIC_CUSTOM_DOMAIN}/static/'
-
-# # Media files (Uploads)
-# AWS_S3_CUSTOM_DOMAIN = 'eventhub-media.s3.amazonaws.com'
-# MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-
-# # Remove this because media files are stored on S3, not on the local filesystem
-# # MEDIA_ROOT is unnecessary when using S3 for media files
-# # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# # Default primary key field type
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# # AWS Credentials and S3 settings
-# AWS_ACCESS_KEY_ID = 'AKIAQPHJMQZMA3V7K7UD'
-# AWS_SECRET_ACCESS_KEY = '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'
-
-# # S3 bucket for media files (ensure this bucket is set up for media files)
-# AWS_STORAGE_BUCKET_NAME = 'eventhub-media'
-# AWS_S3_REGION_NAME = 'eu-north-1'
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_DEFAULT_ACL = None  # Set ACL to None (files will be private by default)
-# AWS_S3_VERIFY = True
-
-# # S3 Object Parameters (Cache-Control)
-# AWS_S3_OBJECT_PARAMETERS = {
-#     'CacheControl': 'max-age=86400',
-# }
-
-# # Use S3 for media storage
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # AWS settings
-AWS_ACCESS_KEY_ID = 'AKIAQPHJMQZMHM5IM7J2'
-AWS_SECRET_ACCESS_KEY = 'BStS5Ga1VYf/gygrOzXXOjtPxLyfAB9Eet9bGZi1'
-AWS_STORAGE_BUCKET_NAME = 'eventhub-storage'
-AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-
-# S3 bucket configuration
-AWS_S3_CUSTOM_DOMAIN = f'eventhub-storage.s3.amazonaws.com'
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
+AWS_S3_SIGNATURE_VERSION = config('AWS_S3_SIGNATURE_VERSION')
+AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN')
 AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
+    'CacheControl': config('AWS_S3_CACHE_CONTROL')
 }
+
+
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 
@@ -153,17 +111,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# # Media files
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'alvinksabu200115@gmail.com'
-EMAIL_HOST_PASSWORD = 'ceoj dbha miri hkdw'
-DEFAULT_FROM_EMAIL = 'alvinksabu200115@gmail.com'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
