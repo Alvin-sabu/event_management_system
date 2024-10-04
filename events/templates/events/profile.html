@@ -225,15 +225,6 @@
                                             <p><strong>Location:</strong> {{ registration.event.location }}</p>
                                             <div class="mt-2">
                                                 <span class="badge bg-primary">Token: {{ registration.token }}</span>
-                                                <!-- {% if registration.event.results_published %}
-                                                    {% if registration.prize %}
-                                                        <span class="badge bg-success">Prize: {{ registration.prize }}</span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary">No prize awarded</span>
-                                                    {% endif %}
-                                                {% else %}
-                                                    <span class="badge bg-info">Results pending</span>
-                                                {% endif %} -->
                                             </div>
                                             <a href="{% url 'event_detail' registration.event.id %}" class="btn btn-outline-primary btn-sm mt-2">View Event</a>
                                         </div>
